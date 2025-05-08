@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hotstar/screens/streaming_screen.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class EpisodeDetailsScreen extends StatefulWidget {
   final String title;
@@ -27,10 +30,18 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
 
   Widget buildEpisodeTile(String title, String subtitle, String duration) {
     return ListTile(
-      leading: Image.network(
-        'https://i.ytimg.com/vi/Ei8oBTxHZcU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDvR2ABOJcba3Ah1vy35rtMt9dorw',
-        width: 100,
-        fit: BoxFit.cover,
+      leading: GestureDetector(
+        onTap: (){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) =>EpisodeDetailsScreen (title: 'Ramayan',)),
+          );
+        },
+        child: Image.network(
+          'https://i.ytimg.com/vi/Ei8oBTxHZcU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDvR2ABOJcba3Ah1vy35rtMt9dorw',
+          width: 100,
+          fit: BoxFit.cover,
+        ),
       ),
       title: Text(
         title,
@@ -59,6 +70,7 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.black,),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -66,24 +78,25 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
             children: [
               // Episode banner image
               Stack(
-                children:[ Image.network(
-                  'https://i.ytimg.com/vi/Ei8oBTxHZcU/hq720.jpg',
-                  width: double.infinity,
-                  height: 300,
-                  fit: BoxFit.cover,
-                ),
-                  Positioned(
-                    top: 10, // Adjust for status bar height
-                    left: 10,
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.black, size: 40, weight: 700,),
-                      onPressed: () {
-                        Navigator.pop(context); // Navigates back
-                      },
+                children: [
+                  // Vimeo Video using WebView with Autoplay
+                  SizedBox(
+                    width: double.infinity,
+                    height: 300,
+                    child: WebViewWidget(
+                      controller: WebViewController()
+                        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                        ..loadRequest(
+                          Uri.parse(
+                            'https://player.vimeo.com/video/1077793352?autoplay=1&muted=1',
+                          ),
+                        ),
                     ),
                   ),
+                  // Add Back Button or Overlay if needed
                 ],
               ),
+
               const SizedBox(height: 10),
               // Episode details
               Padding(
@@ -93,11 +106,13 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
                   style: const TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  'Episode Details: S1E2 - Release Date: Jan 1, 2025',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                  'Ramayan is an iconic Indian television series based on the ancient Sanskrit epic. '
+                      'Created by Ramanand Sagar, it originally aired in 1987 and depicts the life of Lord Rama, ',
+
+                  style: GoogleFonts.roboto(color: Colors.white, fontSize: 14, height: 1.5),
                 ),
               ),
               const SizedBox(height: 10),
@@ -144,23 +159,52 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
               ),
               const SizedBox(height: 10),
               // Popular Shows
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'Popular Shows',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-              SizedBox(
-                height: 180,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildShowCard('https://i.pinimg.com/736x/f9/03/fa/f903fafdf7da0adb883bee0fa54ff863.jpg'),
-                    _buildShowCard('https://i.pinimg.com/236x/8a/ee/df/8aeedf3a7d7edf3c435ad84f004c3cd5.jpg'),
-                    _buildShowCard('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3TGnuUWH8H2rj48nsBUUPDrgrBQKHpyguCg&s'),
-                    _buildShowCard('https://i.pinimg.com/736x/f9/03/fa/f903fafdf7da0adb883bee0fa54ff863.jpg'),
-                    _buildShowCard('https://i.pinimg.com/236x/8a/ee/df/8aeedf3a7d7edf3c435ad84f004c3cd5.jpg'),
+                    Text(
+                      'Related Shows',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const StreamingScreen()),
+                        );
+                      },
+                      child: SizedBox(
+                        height: 220,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(), // Optional smooth scroll
+                          children: [
+                            relatedShowCard(
+                              'https://m.media-amazon.com/images/M/MV5BZmNjMzliYjgtNDdkNC00ZWU5LWI1ZDAtNGI2ODNjODUzMTc1XkEyXkFqcGc@._V1_QL75_UY207_CR8,0,140,207_.jpg',
+                            ),
+                            relatedShowCard(
+                              'https://akamaividz2.zee5.com/image/upload/w_756,h_1134,c_scale,f_webp,q_auto:eco/resources/0-6-300/portrait/1920x7701558563901558563909e660834d6014e26bb303fb89dc5b3aa.jpg',
+                            ),
+                            relatedShowCard(
+                              'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
+                            ),
+                            relatedShowCard(
+                              'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
+                            ),
+                            relatedShowCard(
+                              'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -171,3 +215,17 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen>
     );
   }
 }
+Widget relatedShowCard(String imageUrl) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        imageUrl,
+        width: 140,
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+}
+

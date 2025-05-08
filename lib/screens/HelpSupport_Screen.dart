@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../provider/help_provider.dart';
- // Ensure this path is correct
 
 class HelpSupportScreen extends StatelessWidget {
   const HelpSupportScreen({Key? key}) : super(key: key);
@@ -25,6 +26,32 @@ class HelpSupportScreen extends StatelessWidget {
     },
   ];
 
+  Future<void> _openWhatsAppChat() async {
+    final phoneNumber = '+911234567890'; // Replace with your actual support number
+    final message = Uri.encodeComponent("Hi, I need help with the Hotstar app.");
+    final url = Uri.parse("https://wa.me/$phoneNumber?text=$message");
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch WhatsApp';
+    }
+  }
+
+  Future<void> _sendEmail() async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: 'support@hotstar.com',
+      query: Uri.encodeFull('subject=App Support&body=Hi, I need help with the app.'),
+    );
+
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      throw 'Could not open email client';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -33,10 +60,11 @@ class HelpSupportScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: const Text(
+          title: Text(
             'Help & Support',
-            style: TextStyle(color: Colors.white),
+            style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
           ),
+          centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Padding(
@@ -93,15 +121,35 @@ class HelpSupportScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Implement your contact support logic here
-                    },
-                    icon: const Icon(Icons.email),
-                    label: const Text('Contact Support'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
+                  const SizedBox(height: 12),
+
+                  // WhatsApp Button
+                  GestureDetector(
+                    onTap: _openWhatsAppChat,
+                    child: const Text(
+                      '+911234567890',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+
+
+                  const SizedBox(height: 12),
+
+                  // Email Support Link
+                  GestureDetector(
+                    onTap: _sendEmail,
+                    child: const Text(
+                      'support@reellife.com',
+                      style: TextStyle(
+                        color: Colors.lightBlueAccent,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],

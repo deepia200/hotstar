@@ -1,10 +1,7 @@
-// lib/screens/edit_profile_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-import '../provider/user_provider.dart';
-
 
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -12,82 +9,113 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _passwordController;
+  String? _name, _email, _password;
+  XFile? _profileImage;
 
   final ImagePicker _picker = ImagePicker();
 
-  @override
-  void initState() {
-    final profile = Provider.of<ProfileProvider>(context, listen: false);
-    _nameController = TextEditingController(text: profile.name);
-    _emailController = TextEditingController(text: profile.email);
-    _passwordController = TextEditingController(text: profile.password);
-    super.initState();
-  }
-
   Future<void> _pickImage() async {
-    final XFile? image =
-    await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    if (image != null) {
-      Provider.of<ProfileProvider>(context, listen: false)
-          .updateProfileImage(File(image.path));
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = pickedFile;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<ProfileProvider>(context);
-
     return Scaffold(
-      appBar: AppBar(title: Text("Edit Profile")),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: profileProvider.profileImage != null
-                    ? FileImage(profileProvider.profileImage!)
-                    : AssetImage('assets/images/default_avatar.png') as ImageProvider,
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Icon(Icons.camera_alt, size: 28),
+      appBar: AppBar(
+        title: Text('Edit Profile',
+          style: GoogleFonts.roboto(fontWeight: FontWeight.bold ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _profileImage == null
+                      ? AssetImage('assets/default_profile_pic.png') as ImageProvider
+                      : FileImage(File(_profileImage!.path)),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: "Name"),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: "Email"),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: "Password"),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                profileProvider.updateProfile(
-                  _nameController.text,
-                  _emailController.text,
-                  _passwordController.text,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Profile updated")),
-                );
-              },
-              child: Text("Save Changes"),
-            )
-          ],
+              SizedBox(height: 20),
+              TextFormField(
+                initialValue: _name,
+                decoration: InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+                onChanged: (value) => _name = value,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                initialValue: _email,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+                onChanged: (value) => _email = value,
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                initialValue: _password,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                ),
+                obscureText: true,
+                onChanged: (value) => _password = value,
+              ),
+              SizedBox(height: 20),
+              // Gradient Button
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: LinearGradient(
+                    colors: [Colors.blue, Colors.pink],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.transparent, // Set transparent background to show gradient
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 15), // Adjust button height
+                  ),
+                  onPressed: () {
+                    // Handle save action
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Profile Updated!')));
+                  },
+                  child: Text(
+                    'Save Changes',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
