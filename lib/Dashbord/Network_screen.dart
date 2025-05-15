@@ -98,16 +98,16 @@ class _NetworkScreenState extends State<NetworkScreen> {
 
                     // Second level: Left and Right child nodes
                     buildTreeRow([
-                      buildUserCell('BG00000001', 'Left'),
-                      buildUserCell('BG00000002', 'Right'),
+                      buildUserCell('ID327087', 'Ayesha'),
+                      buildUserCell('ID327087', 'Keshav'),
                     ]),
 
                     // Third level: Additional child nodes for further depth
                     buildTreeRow([
-                      buildUserCell('BG00000003', 'L1'),
+                      buildUserCell('ID327087', 'Sana'),
                       buildOpenCell(),
                       buildOpenCell(),
-                      buildUserCell('BG00000004', 'R1'),
+                      buildUserCell('ID327087', 'Payal'),
                     ]),
                   ],
                 );
