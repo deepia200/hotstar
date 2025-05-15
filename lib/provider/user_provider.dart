@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class UserProvider with ChangeNotifier {
   // Profile (from signup or profile screen)
-  String _name = 'John Doe';
-  String _email = 'john@example.com';
+  String _name = 'Deepika Sahu';
+  String _email = 'deepika@gmail.com';
   String _password = '123456';
   File? _profileImage;
 

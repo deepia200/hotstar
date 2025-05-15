@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../provider/auth_provider.dart';
 import 'Details_Screen.dart';
+import 'auth_Screen.dart';
 import 'home_Screen.dart';
 
 class StreamingScreen extends StatelessWidget {
@@ -22,7 +26,9 @@ class StreamingScreen extends StatelessWidget {
                   // Vimeo Video using WebView with Autoplay
                   SizedBox(
                     width: double.infinity,
-                    height: 300,
+                    height: MediaQuery.of(context).size.height / 4,
+
+
                     child: WebViewWidget(
                       controller: WebViewController()
                         ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -61,12 +67,23 @@ class StreamingScreen extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const EpisodeDetailsScreen(title: 'Episode Title'),
-                                ),
-                              );
+                              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+                              if (authProvider.isAuthenticated) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const EpisodeDetailsScreen(title: "Ramayan"),
+                                  ),
+                                );
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AuthScreen(),
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -101,18 +118,11 @@ class StreamingScreen extends StatelessWidget {
         
                         // Share icon
                         IconButton(
+                          icon: Icon(Icons.share, color: Colors.white),
                           onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              backgroundColor: Colors.grey[900],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                              ),
-                              builder: (context) => ShareOptionsSheet(),
-                            );
+                            Share.share('Check out this awesome content!');
                           },
-                          icon: const Icon(Icons.share, color: Colors.white),
-                        ),
+                        )
                       ],
                     ),
         
@@ -171,24 +181,25 @@ class StreamingScreen extends StatelessWidget {
                         );
                       },
                       child: SizedBox(
-                        height: 220,
+                        height: MediaQuery.of(context).size.height / 6,
+
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           physics: const BouncingScrollPhysics(), // Optional smooth scroll
                           children: [
-                            relatedShowCard(
+                            relatedShowCard(context,
                               'https://m.media-amazon.com/images/M/MV5BZmNjMzliYjgtNDdkNC00ZWU5LWI1ZDAtNGI2ODNjODUzMTc1XkEyXkFqcGc@._V1_QL75_UY207_CR8,0,140,207_.jpg',
                             ),
-                            relatedShowCard(
+                            relatedShowCard(context,
                               'https://akamaividz2.zee5.com/image/upload/w_756,h_1134,c_scale,f_webp,q_auto:eco/resources/0-6-300/portrait/1920x7701558563901558563909e660834d6014e26bb303fb89dc5b3aa.jpg',
                             ),
-                            relatedShowCard(
+                            relatedShowCard(context,
                               'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
                             ),
-                            relatedShowCard(
+                            relatedShowCard(context,
                               'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
                             ),
-                            relatedShowCard(
+                            relatedShowCard(context,
                               'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
                             ),
                           ],
@@ -206,17 +217,18 @@ class StreamingScreen extends StatelessWidget {
     );
   }
 
-  Widget relatedShowCard(String imageUrl) {
+  Widget relatedShowCard(BuildContext context, String imageUrl) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: Image.network(
           imageUrl,
-          width: 140,
+          width: MediaQuery.of(context).size.width / 4,
           fit: BoxFit.cover,
         ),
       ),
     );
   }
+
 }

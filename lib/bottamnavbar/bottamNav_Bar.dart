@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/Dashboard_screen.dart';
@@ -23,7 +24,6 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final isLoggedIn = authProvider.isAuthenticated;
 
-    // Screens list based on login
     final List<Widget> screens = [
       const HomeScreen(),
       const SearchScreen(),
@@ -31,35 +31,74 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
       const ProfileScreen(),
     ];
 
-    return Scaffold(
-      body: SafeArea(child: screens[_selectedIndex]),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          // If Profile tapped and not logged in, redirect to login
-          if (!isLoggedIn && index == screens.length - 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AuthScreen()),
-            );
-            return;
-          }
+    return WillPopScope(
+      onWillPop: () async {
+        if (_selectedIndex != 0) {
           setState(() {
-            _selectedIndex = index;
+            _selectedIndex = 0;
           });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.black,
-        items: [
-          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          if (isLoggedIn)
-            const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+          return false;
+        } else {
+          return await _showExitDialog();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(child: screens[_selectedIndex]),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            if (!isLoggedIn && index == screens.length - 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AuthScreen()),
+              );
+              return;
+            }
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.blueAccent,
+          unselectedItemColor: Colors.grey,
+          backgroundColor: Colors.black,
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            const BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            if (isLoggedIn)
+              const BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          ],
+        ),
       ),
     );
+  }
+
+  Future<bool> _showExitDialog() async {
+    return (await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.black,
+        title: Text(
+          'Are you sure?',
+          style: GoogleFonts.roboto(color: Colors.white),
+        ),
+        content: Text(
+          'Do you really want to exit the app?',
+          style: GoogleFonts.roboto(color: Colors.white),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('No', style: GoogleFonts.roboto(color: Colors.white)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Yes', style: GoogleFonts.roboto(color: Colors.white)),
+          ),
+        ],
+      ),
+    )) ??
+        false;
   }
 }

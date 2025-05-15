@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -32,50 +31,40 @@ class MyKycScreen extends StatelessWidget {
           children: [
             _sectionTitle("KYC Details"),
             const SizedBox(height: 12),
-            _buildInfoCard("Name", user.name ?? 'N/A'),
-            _buildInfoCard("Email", user.email ?? 'N/A'),
-            _buildInfoCard("Phone", user.phone ?? 'N/A'),
+            _buildInfoCard("Name", user.name ?? 'N/A', isVerified: true),
+            _buildInfoCard("Email", user.email ?? 'N/A', isVerified: true), // Marked verified
+            _buildInfoCard("Phone", user.phone ?? 'N/A', isVerified: true), // Marked verified
 
-            const SizedBox(height: 24),
             _sectionTitle("Address"),
             const SizedBox(height: 12),
-            _buildInfoCard("Street", user.address?['street'] ?? 'N/A'),
-            _buildInfoCard("City", user.address?['city'] ?? 'N/A'),
-            _buildInfoCard("State", user.address?['state'] ?? 'N/A'),
-            _buildInfoCard("Zip Code", user.address?['zip'] ?? 'N/A'),
+            _buildInfoCard("Full Address", user.fullAddress ?? 'N/A',isVerified: true),
+            _buildInfoCard("City", user.address?['city'] ?? 'N/A',isVerified: true),
+            _buildInfoCard("State", user.address?['state'] ?? 'N/A', isVerified: true),
+            _buildInfoCard("Zip Code", user.address?['zip'] ?? 'N/A', isVerified: true),
+            _buildInfoCard("Country", user.address?['country'] ?? 'N/A',isVerified: true),
 
             const SizedBox(height: 24),
-            _sectionTitle("Uploaded Document"),
+            _sectionTitle("Uploaded Documents"),
             const SizedBox(height: 12),
-            Container(
-              height: 180,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[700]!),
-              ),
-              child: user.documentImagePath != null
-                  ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  File(user.documentImagePath!),
-                  fit: BoxFit.cover,
-                ),
-              )
-                  : Center(
-                child: Text(
-                  "No document uploaded",
-                  style: GoogleFonts.roboto(color: Colors.grey),
-                ),
-              ),
+
+            _buildDocumentSection(
+              label: 'Aadhaar Card',
+              imagePath: user.aadhaarImagePath,
             ),
+
+            const SizedBox(height: 16),
+            _buildDocumentSection(
+              label: 'Other Document (PAN/DL)',
+              imagePath: user.otherDocumentImagePath,
+            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
+  // Section title widget
   Widget _sectionTitle(String title) {
     return Text(
       title,
@@ -87,7 +76,8 @@ class MyKycScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(String label, String value) {
+  // Info card with optional verified icon
+  Widget _buildInfoCard(String label, String value, {bool isVerified = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -112,7 +102,39 @@ class MyKycScreen extends StatelessWidget {
               style: GoogleFonts.roboto(color: Colors.white),
             ),
           ),
+          if (isVerified)
+            const Icon(Icons.verified, color: Colors.greenAccent, size: 20),
         ],
+      ),
+    );
+  }
+
+  // Document display section
+  Widget _buildDocumentSection({
+    required String label,
+    required String? imagePath,
+  }) {
+    return Container(
+      height: 180,
+      width: MediaQueryData.fromWindow(WidgetsBinding.instance.window).size.width,
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[700]!),
+      ),
+      child: imagePath != null && imagePath.isNotEmpty
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          File(imagePath),
+          fit: BoxFit.cover,
+        ),
+      )
+          : Center(
+        child: Text(
+          "$label not uploaded",
+          style: GoogleFonts.roboto(color: Colors.grey),
+        ),
       ),
     );
   }

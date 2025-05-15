@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../provider/member_provider.dart';  // Import MemberProvider
-import '../models/member_model.dart';     // Import Member model
+import '../provider/member_provider.dart';
+import '../models/member_model.dart';
 
 class NewMemberRegistrationScreen extends StatefulWidget {
   const NewMemberRegistrationScreen({super.key});
@@ -15,80 +16,107 @@ class _NewMemberRegistrationScreenState extends State<NewMemberRegistrationScree
   final _emailController = TextEditingController();
   final _userIdController = TextEditingController();
 
-  // This function will be triggered when the user submits the registration form
   void _registerNewMember() {
     final name = _nameController.text;
     final email = _emailController.text;
     final userId = _userIdController.text;
 
     if (name.isEmpty || email.isEmpty || userId.isEmpty) {
-      // Show a message if any field is empty
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill all the fields")),
       );
       return;
     }
 
-    // Create a new member and add it using the provider
     final newMember = Member(name: name, email: email, userId: userId);
     Provider.of<MemberProvider>(context, listen: false).addMember(newMember);
-
-    // After adding the member, navigate to the MyNetworkScreen
     Navigator.pop(context);
+  }
+
+  InputDecoration _inputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: Colors.grey),
+      filled: true,
+      fillColor: Colors.grey[850],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text("New Member Registration"),
+    return SafeArea(
+      child: Scaffold(
         backgroundColor: Colors.black,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        appBar: AppBar(
+          title: Text(
+            "New Member Registration",
+            style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.black,
+          centerTitle: true,
+        ),
+        body: Column(
           children: [
-            TextField(
-              controller: _nameController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: "Name",
-                labelStyle: TextStyle(color: Colors.white),
-                filled: true,
-                fillColor: Colors.grey,
-                border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 30),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration("Name"),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration("Email"),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _userIdController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: _inputDecoration("User ID"),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _emailController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: "Email",
-                labelStyle: TextStyle(color: Colors.white),
-                filled: true,
-                fillColor: Colors.grey,
-                border: OutlineInputBorder(),
+            Container(
+              width: double.infinity,
+              height: 50,
+              margin: const EdgeInsets.only(left: 20, right: 20, bottom: 30),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.blueAccent, Colors.pinkAccent],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _userIdController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: "User ID",
-                labelStyle: TextStyle(color: Colors.white),
-                filled: true,
-                fillColor: Colors.grey,
-                border: OutlineInputBorder(),
+              child: ElevatedButton(
+                onPressed: _registerNewMember,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  "Register Member",
+                  style: GoogleFonts.roboto(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _registerNewMember,
-              child: const Text("Register Member"),
             ),
           ],
         ),

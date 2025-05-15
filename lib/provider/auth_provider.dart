@@ -4,28 +4,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider extends ChangeNotifier {
   String? _userId;
   String? _password;
-
   String? _name;
   String? _email;
   String? _phone;
   Map<String, String>? _address;
-  String? _documentImagePath;
+  String? _fullAddress;
+  String? _country;
 
+  String? _aadhaarImagePath;
+  String? _otherDocumentImagePath;
+  bool _isKycVerified = false;
+
+  // Getters
   bool get isAuthenticated => _userId != null;
-
   String? get userId => _userId;
   String? get password => _password;
   String? get name => _name;
   String? get email => _email;
   String? get phone => _phone;
   Map<String, String>? get address => _address;
-  String? get documentImagePath => _documentImagePath;
+  String? get fullAddress => _fullAddress;
+  String? get country => _country;
+  String? get aadhaarImagePath => _aadhaarImagePath;
+  String? get otherDocumentImagePath => _otherDocumentImagePath;
+  bool get isKycVerified => _isKycVerified;
 
   AuthProvider() {
-    _loadCredentials(); // Load on startup
+    _loadCredentials();
   }
 
-  // Set user credentials and save them
   void setUser({required String userId, required String password}) async {
     _userId = userId;
     _password = password;
@@ -46,10 +53,14 @@ class AuthProvider extends ChangeNotifier {
     _email = null;
     _phone = null;
     _address = null;
-    _documentImagePath = null;
+    _fullAddress = null;
+    _country = null;
+    _aadhaarImagePath = null;
+    _otherDocumentImagePath = null;
+    _isKycVerified = false;
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all stored data
+    await prefs.clear();
     notifyListeners();
   }
 
@@ -60,22 +71,26 @@ class AuthProvider extends ChangeNotifier {
     _name = prefs.getString('name');
     _email = prefs.getString('email');
     _phone = prefs.getString('phone');
+    _fullAddress = prefs.getString('fullAddress');
+    _country = prefs.getString('country');
 
     final street = prefs.getString('address_street');
     final city = prefs.getString('address_city');
     final state = prefs.getString('address_state');
     final zip = prefs.getString('address_zip');
 
-    if (street != null && city != null && state != null && zip != null) {
+    if (city != null && state != null && zip != null) {
       _address = {
-        'street': street,
+        'street': street ?? '',
         'city': city,
         'state': state,
         'zip': zip,
       };
     }
 
-    _documentImagePath = prefs.getString('documentImagePath');
+    _aadhaarImagePath = prefs.getString('aadhaarImagePath');
+    _otherDocumentImagePath = prefs.getString('otherDocumentImagePath');
+    _isKycVerified = prefs.getBool('isKycVerified') ?? false;
 
     notifyListeners();
   }
@@ -111,10 +126,38 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDocumentImage(String path) async {
-    _documentImagePath = path;
+  void setFullAddress(String value) async {
+    _fullAddress = value;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('documentImagePath', path);
+    await prefs.setString('fullAddress', value);
+    notifyListeners();
+  }
+
+  void setCountry(String value) async {
+    _country = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('country', value);
+    notifyListeners();
+  }
+
+  void setAadhaarImage(String path) async {
+    _aadhaarImagePath = path;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('aadhaarImagePath', path);
+    notifyListeners();
+  }
+
+  void setOtherDocumentImage(String path) async {
+    _otherDocumentImagePath = path;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('otherDocumentImagePath', path);
+    notifyListeners();
+  }
+
+  void completeKyc() async {
+    _isKycVerified = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isKycVerified', true);
     notifyListeners();
   }
 }

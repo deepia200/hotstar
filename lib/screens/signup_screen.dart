@@ -11,7 +11,6 @@ class SignUpScreen extends StatefulWidget {
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
-
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
@@ -20,60 +19,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
-  String userType = 'Member'; // Default user type
-  String generatedId = '';
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
-  // Generates random 6-digit ID
+  String userType = 'Member';
+
   String generateId() {
     final random = Random();
     return 'ID${random.nextInt(900000) + 100000}';
-  }
-
-  void handleSignUp() {
-    if (userType == 'Member') {
-      if (nameController.text.isEmpty ||
-          emailController.text.isEmpty ||
-          passwordController.text != confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please fill out all fields correctly')),
-        );
-        return;
-      }
-    }
-
-    generatedId = generateId();
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: Text(
-          "Signup Successful",
-          style: TextStyle(color: Colors.greenAccent),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Signed up as: $userType", style: TextStyle(color: Colors.white)),
-            if (userType == 'Member') ...[
-              Text("Name: ${nameController.text}", style: TextStyle(color: Colors.white70)),
-              Text("Email: ${emailController.text}", style: TextStyle(color: Colors.white70)),
-            ],
-            Text("Your ID: $generatedId", style: TextStyle(color: Colors.blueAccent)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text("OK", style: TextStyle(color: Colors.white)),
-          )
-        ],
-      ),
-    );
   }
 
   @override
@@ -95,124 +48,152 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-                if (userType == 'Member') ...[
-                  TextField(
-                    controller: nameController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[850],
-                      hintText: 'Full Name',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: emailController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[850],
-                      hintText: 'Email',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[850],
-                      hintText: 'Password',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: confirmPasswordController,
-                    obscureText: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[850],
-                      hintText: 'Confirm Password',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
 
-                  const SizedBox(height: 20),
-                  DropdownButtonFormField<String>(
-                    value: userType,
-                    dropdownColor: Colors.grey[900],
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey[850],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                TextField(
+                  controller: nameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    hintText: 'Full Name',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    style: const TextStyle(color: Colors.white),
-                    items: ['Member', 'Guest'].map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      setState(() {
-                        userType = val!;
-                      });
-
-                      // Show user-type info dialog
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          backgroundColor: Colors.grey[900],
-                          title: Text(
-                            userType == 'Member' ? 'Why sign up as a Member?' : 'Benefits of Guest Signup',
-                            style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
-                          ),
-                          content: Text(
-                            userType == 'Member'
-                                ? 'Members get full access to features, KYC verification, and personalized recommendations.'
-                                : 'Guest signups are quick and easy, with limited access but no KYC needed.',
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('OK', style: TextStyle(color: Colors.white)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
                   ),
+                ),
+                const SizedBox(height: 16),
 
-                  const SizedBox(height: 16),
-                ],
+                TextField(
+                  controller: emailController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    hintText: 'Email',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextField(
+                  controller: passwordController,
+                  obscureText: !_isPasswordVisible,
+                  maxLength: 6,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    hintText: 'Password',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: !_isConfirmPasswordVisible,
+                  maxLength: 6,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    hintText: 'Confirm Password',
+                    hintStyle: const TextStyle(color: Colors.grey),
+                    counterText: '',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        color: Colors.grey,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
+
+                DropdownButtonFormField<String>(
+                  value: userType,
+                  dropdownColor: Colors.grey[900],
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[850],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                  items: ['Member', 'Guest'].map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() {
+                      userType = val!;
+                    });
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        backgroundColor: Colors.grey[900],
+                        title: Text(
+                          userType == 'Member' ? 'Why sign up as a Member?' : 'Benefits of Guest Signup',
+                          style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
+                        ),
+                        content: Text(
+                          userType == 'Member'
+                              ? 'Members get full access to features, KYC verification, and personalized recommendations.'
+                              : 'Guest signups are quick and easy, with limited access but no KYC needed.',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 30),
+
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -232,50 +213,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         final password = passwordController.text.trim();
                         final confirmPassword = confirmPasswordController.text.trim();
 
-                        if (userType == 'Member') {
-                          if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Please fill in all fields')),
-                            );
-                            return;
-                          }
-
-                          if (password != confirmPassword) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Passwords do not match')),
-                            );
-                            return;
-                          }
-                        } else if (userType == 'Guest') {
-                          if (password.isEmpty || confirmPassword.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Please enter and confirm password')),
-                            );
-                            return;
-                          }
-
-                          if (password != confirmPassword) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Passwords do not match')),
-                            );
-                            return;
-                          }
+                        if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please fill in all fields')),
+                          );
+                          return;
                         }
 
-                        final distributedId = 'ID${DateTime.now().millisecondsSinceEpoch}';
+                        if (password != confirmPassword) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Passwords do not match')),
+                          );
+                          return;
+                        }
+
+                        final distributedId = generateId();
                         final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-                        // Save to Provider (persists with SharedPreferences in your AuthProvider)
                         authProvider.setUser(userId: distributedId, password: password);
                         authProvider.setName(name);
                         authProvider.setEmail(email);
 
-                        // Show confirmation dialog
                         showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
                             backgroundColor: Colors.grey[900],
-                            title: Text(
+                            title: const Text(
                               "Signup Successful",
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
@@ -283,18 +246,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Signed up as: $userType", style: TextStyle(color: Colors.white)),
-                                if (userType == 'Member') ...[
-                                  Text("Name: $name", style: TextStyle(color: Colors.white70)),
-                                  Text("Email: $email", style: TextStyle(color: Colors.white70)),
-                                ],
-                                Text("Your ID: $distributedId", style: TextStyle(color: Colors.blueAccent)),
+                                Text("Signed up as: $userType", style: const TextStyle(color: Colors.white)),
+                                Text("Name: $name", style: const TextStyle(color: Colors.white70)),
+                                Text("Email: $email", style: const TextStyle(color: Colors.white70)),
+                                Text("Your ID: $distributedId", style: const TextStyle(color: Colors.blueAccent)),
                               ],
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context); // Close dialog
+                                  Navigator.pop(context);
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
@@ -305,16 +266,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                   );
                                 },
-
                                 child: const Text("OK", style: TextStyle(color: Colors.white)),
                               )
                             ],
                           ),
                         );
                       },
-
-
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -333,7 +290,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

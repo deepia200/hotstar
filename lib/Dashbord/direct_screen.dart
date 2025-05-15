@@ -1,74 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../provider/member_provider.dart';  // Import MemberProvider
+import '../models/member_model.dart';     // Import Member model
 
-class MyDirectScreen extends StatelessWidget {
-  const MyDirectScreen({super.key});
+class DirectScreen extends StatelessWidget {
+  const DirectScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Example event data
-    final String eventTitle = "Next Big Event";
-    final String eventDate = "May 25, 2025";
-    final String eventTime = "3:00 PM";
-    final String eventPlace = "Main Hall, City Center";
+    final members = Provider.of<MemberProvider>(context).members;
 
-    return Scaffold(
-      appBar: AppBar(
-        title:  Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text("Upcoming Event", style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          title: Text(
+            "My Referrals",
+            style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.black,
         ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        body: members.isEmpty
+            ? Center(
+          child: Text(
+            "No members added",
+            style: GoogleFonts.roboto(color: Colors.white),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  eventTitle,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+        )
+            : ListView.builder(
+          itemCount: members.length,
+          itemBuilder: (context, index) {
+            final member = members[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              color: Colors.grey[850],
+              child: ListTile(
+                contentPadding: const EdgeInsets.all(12),
+                title: Text(member.name, style: GoogleFonts.roboto(color: Colors.white)),
+                subtitle: Text(
+                  'Email: ${member.email}\nUser ID: ${member.userId}',
+                  style: GoogleFonts.roboto(color: Colors.white70),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 20),
-                    const SizedBox(width: 10),
-                    Text(eventDate),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, size: 20),
-                    const SizedBox(width: 10),
-                    Text(eventTime),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 20),
-                    const SizedBox(width: 10),
-                    Flexible(child: Text(eventPlace)),
-                  ],
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 }
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+//
+// class MyDirectScreen extends StatelessWidget {
+//   const MyDirectScreen({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     // Dummy referral data
+//     final List<Map<String, String>> referredUsers = [
+//       {'name': 'User A', 'joinedOn': 'May 1, 2025'},
+//       {'name': 'User B', 'joinedOn': 'May 3, 2025'},
+//       {'name': 'User C', 'joinedOn': 'May 6, 2025'},
+//     ];
+//
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(
+//           "My Referrals",
+//           style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),
+//         ),
+//         centerTitle: true,
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: referredUsers.isEmpty
+//             ? Center(child: Text("No referrals yet."))
+//             : ListView.builder(
+//           itemCount: referredUsers.length,
+//           itemBuilder: (context, index) {
+//             final user = referredUsers[index];
+//             return Card(
+//               margin: const EdgeInsets.symmetric(vertical: 8),
+//               elevation: 3,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//               child: ListTile(
+//                 leading: CircleAvatar(child: Text(user['name']![0])),
+//                 title: Text(user['name']!),
+//                 subtitle: Text('Joined on: ${user['joinedOn']}'),
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hotstar/provider/wallet_provider.dart';
 import 'package:provider/provider.dart';
+
+import '../provider/wallet_provider.dart';
 
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
@@ -24,10 +25,10 @@ class _WalletScreenState extends State<WalletScreen> {
     super.didChangeDependencies();
     final wallet = Provider.of<WalletProvider>(context, listen: false);
     nameController.text = wallet.userName;
-    bankController.text = "Digital Bank of Flutter";
+    bankController.text = wallet.bankName;
     accountController.text = wallet.accountNumber;
-    walletIdController.text = "WLT-${wallet.accountNumber.substring(0, 4)}XXXX";
-    ifscController.text = "DIGI0001234";
+    walletIdController.text = wallet.walletId;
+    ifscController.text = wallet.ifscCode;
   }
 
   @override
@@ -37,13 +38,9 @@ class _WalletScreenState extends State<WalletScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.only(left: 130),
-            child: Text('Wallet',
-              style: GoogleFonts.roboto(fontWeight: FontWeight.bold),
-            ),
-          ),
+          title:  Text('Wallet', style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),),
           backgroundColor: Colors.black,
+          centerTitle: true,
         ),
         backgroundColor: Colors.black,
         body: Column(
@@ -55,66 +52,155 @@ class _WalletScreenState extends State<WalletScreen> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    // Wallet Card
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Colors.indigo, Colors.green],
+                          colors: [Color(0xFF1A1F71), Color(0xFF3A4750)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            offset: const Offset(0, 6),
+                            blurRadius: 10,
+                          ),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(bankController.text,
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 16),
-                          Text("Name: ${wallet.userName}",
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 10),
-                          Text("Account No: ${wallet.accountNumber}",
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 10),
-                          Text("Wallet ID: WLT-${wallet.accountNumber.substring(0, 4)}XXXX",
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 10),
-                          Text("IFSC Code: DIGI0001234",
-                              style: GoogleFonts.roboto(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 32),
+                          // Bank name & icon
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("₹${wallet.balance.toStringAsFixed(2)}",
-                                  style: GoogleFonts.roboto(
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
+                              Text(
+                                wallet.bankName,
+                                style: GoogleFonts.roboto(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold
+                                ),
+                              ),
+                              const Icon(Icons.credit_card, color: Colors.white54),
                             ],
-                          )
+                          ),
+                          const SizedBox(height: 12),
+                          // Account number
+                          Text(
+                            "**** **** **** ${wallet.accountNumber.substring(wallet.accountNumber.length - 4)}",
+                            style: GoogleFonts.robotoMono(
+                              color: Colors.white,
+                              fontSize: 22,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Wallet ID & IFSC
+                          Text("Wallet ID: ${wallet.walletId}",
+                              style: GoogleFonts.roboto(
+                                  color: Colors.white70, fontSize: 12)),
+                          Text("IFSC Code: ${wallet.ifscCode}",
+                              style: GoogleFonts.roboto(
+                                  color: Colors.white70, fontSize: 12)),
+                          const SizedBox(height: 16),
+                          // Card holder & balance
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("CARD HOLDER",
+                                      style: TextStyle(
+                                          color: Colors.white60, fontSize: 10)),
+                                  Text(wallet.userName,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const Text("BALANCE",
+                                      style: TextStyle(
+                                          color: Colors.white60, fontSize: 10)),
+                                  Text("₹${wallet.balance.toStringAsFixed(2)}",
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold)),
+                                ],
+                              )
+                            ],
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
+
+                    // Editable fields
                     buildEditField("Name", nameController),
                     buildEditField("Bank Name", bankController),
                     buildEditField("Account Number", accountController),
                     buildEditField("Wallet ID", walletIdController),
                     buildEditField("IFSC Code", ifscController),
+
+                    // Save button
+                    // Save button with gradient
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Container(
+                        width: double.infinity,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.blueAccent, Colors.pinkAccent],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            wallet.updateWalletInfo(
+                              userName: nameController.text,
+                              accountNumber: accountController.text,
+                              bankName: bankController.text,
+                              walletId: walletIdController.text,
+                              ifscCode: ifscController.text,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Wallet Info Updated")),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child: const Text(
+                            "Save Changes",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+
+
                   ],
                 ),
               )

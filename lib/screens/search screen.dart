@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotstar/screens/streaming_screen.dart';
+import 'package:provider/provider.dart';
 
+import '../provider/auth_provider.dart';
 import 'auth_Screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -220,23 +222,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      // if (!isLoggedIn) {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(builder: (context) => AuthScreen()),
-                      //   ); // Redirect to login screen
-                      // } else {
-                      //   Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                      //   );
-                      // }
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                      );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
+                        );
                     },
+
+
                     child: Container(
                       width: 70,
                       margin: const EdgeInsets.only(right: 12),
@@ -328,23 +320,13 @@ class _SearchScreenState extends State<SearchScreen> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                    // if (!isLoggedIn) {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => AuthScreen()),
-                    //   );// Redirect to login screen
-                    // } else {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                    //   );
-                    // }
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                    );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
+                      );
                   },
+
+
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[800],

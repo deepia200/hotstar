@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotstar/screens/streaming_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart'; // For dot indicator
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../provider/auth_provider.dart';
 import 'Details_Screen.dart';
@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Map<String, String>> _featuredItems = [
     {"type": "image", "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQiLtIIWEJqFjmaldRuo1ZBbmbKqbXPXW52y-Ls9L-0lWoYL4iuOHKl5ZI3GG9OHyxm0pU&usqp=CAU'"},
-    {"type": "video", "url": "https://player.vimeo.com/video/1077793352?autoplay=1&muted=0"},
+    {"type": "video", "url": "https://vimeo.com/1079554409?share=copy"},
     {"type": "image", "url": "https://dt87jj20glo1t.cloudfront.net/assets/ENTERR10/EPISODE/63360386abe8c9102e378b02/images/1920px-X-1080px_2.jpg"},
   ];
 
@@ -138,6 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget build(BuildContext context) {
     Provider.of<AuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context);
+
 
 
     return Scaffold(
@@ -165,41 +167,51 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.account_balance_wallet, color: Colors.white),
             onPressed: () {
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              if (authProvider.isAuthenticated) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WalletScreen()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AuthScreen(),
+                  ),
+                );
+              }
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => WalletScreen()),
-              );// Navigate to wallet
+
+              // Navigate to wallet
             },
           ),
           IconButton(
             icon: Icon(Icons.share, color: Colors.white),
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.grey[900],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                builder: (context) => ShareOptionsSheet(),
-              );
+              Share.share('Check out this awesome content!');
             },
-          ),
+          )
         ],
       ),
 
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: ListView(
             children: [
               _buildHeroSection(),
               _buildCategoriesSection(),
-              _buildContinueWatchingSection(),
+              // ✅ Show only if user is logged in
+              if (authProvider.isAuthenticated)
+                _buildContinueWatchingSection(),
+              SizedBox(height: 10,),
               _buildPopularShowsSection(),
+              SizedBox(height: 10,),
+              _buildReferAndEarnBanner(),
               _buildPopularInMythologySection(),
               _buildDramaShowsSection(),
-              _buildReferAndEarnBanner(),
+              SizedBox(height: 8,)
             ],
           ),
         ),
@@ -212,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          height: 280,
+          height:MediaQuery.of(context).size.height/4,
           child: PageView.builder(
             controller: _pageController,
             itemCount: _featuredItems.length,
@@ -266,12 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 10),
        SizedBox(
          width: double.infinity,
-          height: 200,
+         height: MediaQuery.of(context).size.height / 5.6,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             itemCount: _contentItems.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
+            separatorBuilder: (context, index) =>  SizedBox(width: 8),
             itemBuilder: (context, index) {
               final item = _contentItems[index];
               return _buildTappableContentCard(
@@ -293,40 +305,27 @@ class _HomeScreenState extends State<HomeScreen> {
     required String episodeInfo,
   }) {
     return Container(
-      width: 230,
+      width: MediaQuery.of(context).size.width / 2,
       margin: const EdgeInsets.only(right: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image
           GestureDetector(
-            onTap: (){
-              // if (!isLoggedIn) {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) => AuthScreen()),
-              //   ); // Redirect to login screen
-              // } else {
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //       builder: (context) => EpisodeDetailsScreen(title: "Ramayan"),
-              //     ),
-              //   );
-              // }
-
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EpisodeDetailsScreen(title: "Ramayan"),
-                ),
-              );
+            onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EpisodeDetailsScreen(title: "Ramayan"),
+                  ),
+                );
             },
+
             child: Container(
-              height: 150,
-              width: 230,
+              height: MediaQuery.of(context).size.height / 7,
+              width: MediaQuery.of(context).size.width / 1,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(4),
                 image: DecorationImage(
                   image: NetworkImage(imageUrl),
                   fit: BoxFit.cover,
@@ -370,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 40,
+          height: MediaQuery.of(context).size.width/10,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children:
@@ -398,8 +397,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 220,
-          child: ListView(
+          height: MediaQuery.of(context).size.height/5,
+          // width: (MediaQuery.of(context).size.width/3.5),
+    child: ListView(
             scrollDirection: Axis.horizontal,
             children:
                 (categoryImages[selectedCategory] ?? [])
@@ -425,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 220,
+          height: MediaQuery.of(context).size.height/5,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
@@ -465,32 +465,95 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 10),
+        // Using GridView instead of horizontal ListView
         SizedBox(
-          height: 220,
-          child: ListView(
+          height: MediaQuery.of(context).size.height / 4.5, // Adjusted height for better view
+          child: GridView.builder(
             scrollDirection: Axis.horizontal,
-            children: [
-              _buildBigContentCard(
-                'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
-              ),
-              _buildBigContentCard(
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3TGnuUWH8H2rj48nsBUUPDrgrBQKHpyguCg&s',
-              ),
-              _buildBigContentCard(
-                'https://m.media-amazon.com/images/M/MV5BYzM1MmNhMGQtNDliNy00ZDIwLTg1MDQtN2NjZjUyNTg2MGMxXkEyXkFqcGc@._V1_QL75_UX190_CR0,13,190,281_.jpg',
-              ),
-              _buildBigContentCard(
-                'https://m.media-amazon.com/images/M/MV5BMWU1OTliM2YtM2I3OS00NTlmLTk4YmQtYWI0ODRiMWZlNGExXkEyXkFqcGc@._V1_.jpg',
-              ),
-              _buildBigContentCard(
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoM6v-ZoScuBFutrVjlriPIW2UL2fBlLBGs-j08QySVJDvT1AXxCXsIG-Mygne_yY2840&usqp=CAU',
-              ),
-            ],
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 1, // Single row
+              childAspectRatio: 1.4, // Aspect ratio for images
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+            ),
+            itemCount: 5, // Number of items
+            itemBuilder: (context, index) {
+              // Add a slight delay for each image
+              return _buildBigContentCardWithOverlay(
+                imageUrl: _getImageUrl(index),
+                title: _getTitle(index),
+              );
+            },
           ),
         ),
       ],
     );
   }
+
+// Helper function to choose different images and titles based on index
+  String _getImageUrl(int index) {
+    const imageUrls = [
+      'https://www.tvtime.com/_next/image?url=https%3A%2F%2Fartworks.thetvdb.com%2Fbanners%2Fv4%2Fseries%2F309259%2Fposters%2F614384858e577.jpg&w=640&q=75',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3TGnuUWH8H2rj48nsBUUPDrgrBQKHpyguCg&s',
+      'https://m.media-amazon.com/images/M/MV5BYzM1MmNhMGQtNDliNy00ZDIwLTg1MDQtN2NjZjUyNTg2MGMxXkEyXkFqcGc@._V1_QL75_UX190_CR0,13,190,281_.jpg',
+      'https://m.media-amazon.com/images/M/MV5BMWU1OTliM2YtM2I3OS00NTlmLTk4YmQtYWI0ODRiMWZlNGExXkEyXkFqcGc@._V1_.jpg',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQoM6v-ZoScuBFutrVjlriPIW2UL2fBlLBGs-j08QySVJDvT1AXxCXsIG-Mygne_yY2840&usqp=CAU',
+    ];
+    return imageUrls[index];
+  }
+
+  String _getTitle(int index) {
+    const titles = [
+      'God of Thunder',
+      'Ancient Myths',
+      'Heroes of the Past',
+      'Legends of the Sky',
+      'Mythical Creatures',
+    ];
+    return titles[index];
+  }
+
+// Custom card widget with overlay
+  Widget _buildBigContentCardWithOverlay({required String imageUrl, required String title}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        image: DecorationImage(
+          image: NetworkImage(imageUrl),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Dark overlay to make the title stand out
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.black.withOpacity(0.5),
+              ),
+            ),
+          ),
+          // Title overlay text
+          Positioned(
+            bottom: 10,
+            left: 10,
+            right: 10,
+            child: Text(
+              title,
+              style: GoogleFonts.roboto(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildReferAndEarnBanner() {
     return Column(
@@ -498,11 +561,11 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         const SizedBox(height: 10),
         Container(
-          height: 180,
+          height: MediaQuery.of(context).size.height/5,
           width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
+          margin:  EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(4),
             image: const DecorationImage(
               image: NetworkImage(
                 'https://img.freepik.com/premium-vector/people-share-info-about-referral-earn-money-landing-page-template_95505-155.jpg',
@@ -532,7 +595,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 220,
+          height:MediaQuery.of(context).size.height/5,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
@@ -567,29 +630,23 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.only(right: 10),
       child: GestureDetector(
         onTap: () {
-          // if (!isLoggedIn) {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => AuthScreen()),
-          //   ); // Redirect to login screen
-          // } else {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-          //   );
-          // }
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-          );
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StreamingScreen(),
+              ),
+            );
+
         },
+
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(4),
           child: Image.network(
             imageUrl,
             fit: BoxFit.cover,
-            height: height,
-            width: width,
+            height: MediaQuery.of(context).size.height /6,
+            width: MediaQuery.of(context).size.width / 3-18,
           ),
         ),
       ),
@@ -597,125 +654,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class ShareOptionsSheet extends StatelessWidget {
-  const ShareOptionsSheet({super.key});
-
-  void _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      debugPrint("Could not launch $url");
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Wrap(
-        runSpacing: 25,
-        children: [
-          const Center(
-            child: Text(
-              "Share via",
-              style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildCustomIconButton(
-                imagePath: 'assets/icon/whatsapp.png',
-                label: 'WhatsApp',
-                onTap: () => _launchURL("https://wa.me/?text=Check out ReelLife!"),
-              ),
-              _buildCustomIconButton(
-                imagePath: 'assets/icon/Telegram.png',
-                label: 'Telegram',
-                onTap: () => _launchURL(
-                  "https://t.me/share/url?url=https://your-link.com",
-                ),
-              ),
-              _buildCustomIconButton(
-                imagePath: 'assets/icon/instagram.png',
-                label: 'Instagram',
-                onTap: () => _launchURL("https://www.instagram.com"),
-              ),
-              _buildCustomIconButton(
-                imagePath: 'assets/icon/Facebook.png',
-                label: 'Facebook',
-                onTap: () => _launchURL(
-                  "https://www.facebook.com/sharer/sharer.php?u=https://your-link.com",
-                ),
-              ),
-            ],
-          ),
 
 
 
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIconButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: const CircleAvatar(
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.share,
-              color: Colors.black,
-            ), // icon param not used here, fix:
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(color: Colors.white)),
-      ],
-    );
-  }
-}
-// if (!isLoggedIn) {
-//   Navigator.push(
-//     context,
-//     MaterialPageRoute(builder: (context) => AuthScreen()),
-//   ); // Redirect to login screen
-// } else {
-//   Navigator.push(
-//     context,
-//     MaterialPageRoute(
-//       builder: (context) => EpisodeDetailsScreen(title: "Ramayan"),
-//     ),
-//   );
-// }
-Widget _buildCustomIconButton({
-  required String imagePath,
-  required String label,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Column(
-      children: [
-        Image.asset(
-          imagePath,
-          width: 40,
-          height: 40,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ],
-    ),
-  );
-}
