@@ -41,7 +41,9 @@ class StreamingScreen extends StatelessWidget {
                   ),
                    IconButton(
                      padding: EdgeInsets.only(left: 20),
-                       onPressed: (){},
+                       onPressed: (){
+                         Navigator.pop(context);
+                       },
                        icon:Icon( Icons.arrow_back,
                        color: Colors.white,
                        size: 30,))// Add Back Button or Overlay if needed

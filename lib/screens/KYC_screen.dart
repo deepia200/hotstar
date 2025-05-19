@@ -152,7 +152,6 @@ class _KycScreenState extends State<KycScreen> {
         ),
       ),
     );
-
   }
 
   Widget _buildGradientLabel(String title, String value) {
