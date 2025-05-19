@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "914712874109",
+    "project_id": "reellife-727e7",
+    "storage_bucket": "reellife-727e7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914712874109:android:edf254f689b1a5bea07514",
+        "android_client_info": {
+          "package_name": "com.example.hotstar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAraL1J8kWgW1Yaix7i1nFTHYs48dkyiGk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

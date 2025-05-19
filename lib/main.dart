@@ -1,3 +1,4 @@
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hotstar/provider/auth_provider.dart';
@@ -12,8 +13,10 @@ import 'bottamnavbar/bottamNav_Bar.dart';
 import 'models/user_model.dart';
 import 'screens/auth_screen.dart';
 
+
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
 
   // Force system bars (status + nav) to be black with light icons
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
