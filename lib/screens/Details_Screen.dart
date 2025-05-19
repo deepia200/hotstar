@@ -39,20 +39,31 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black),
+      // appBar: AppBar(backgroundColor: Colors.black),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height / 4,
-                child: WebViewWidget(
-                  controller: WebViewController()
-                    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                    ..loadRequest(Uri.parse('https://player.vimeo.com/video/1077793352?autoplay=1&muted=1')),
-                ),
+              Stack(
+               children: [
+                 SizedBox(
+                   width: double.infinity,
+                   height: MediaQuery.of(context).size.height / 4,
+                   child: WebViewWidget(
+                     controller: WebViewController()
+                       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                       ..loadRequest(Uri.parse('https://player.vimeo.com/video/1077793352?autoplay=1&muted=1')),
+                   ),
+                 ),
+                 IconButton(
+                     padding: EdgeInsets.only(left: 20),
+                     onPressed: (){},
+                     icon:Icon( Icons.arrow_back,
+                       color: Colors.white,
+                       size: 30,)),
+
+               ],
               ),
               const SizedBox(height: 10),
               Padding(

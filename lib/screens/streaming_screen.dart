@@ -15,7 +15,7 @@ class StreamingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(),
+      // appBar: AppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -39,7 +39,12 @@ class StreamingScreen extends StatelessWidget {
                         ),
                     ),
                   ),
-                  // Add Back Button or Overlay if needed
+                   IconButton(
+                     padding: EdgeInsets.only(left: 20),
+                       onPressed: (){},
+                       icon:Icon( Icons.arrow_back,
+                       color: Colors.white,
+                       size: 30,))// Add Back Button or Overlay if needed
                 ],
               ),
 
