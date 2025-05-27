@@ -26,7 +26,7 @@ class _KycScreenState extends State<KycScreen> {
 
   String city = '';
   String state = '';
-  String country = 'India';
+  String country = '';
 
   File? _aadhaarImage;
   File? _otherDocImage;
