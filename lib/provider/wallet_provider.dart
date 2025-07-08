@@ -68,4 +68,5 @@ class WalletProvider with ChangeNotifier {
     _ifscCode = ifscCode;
     notifyListeners();
   }
+
 }

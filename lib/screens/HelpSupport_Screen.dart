@@ -28,7 +28,7 @@ class HelpSupportScreen extends StatelessWidget {
 
   Future<void> _openWhatsAppChat() async {
     final phoneNumber = '+911234567890'; // Replace with your actual support number
-    final message = Uri.encodeComponent("Hi, I need help with the Hotstar app.");
+    final message = Uri.encodeComponent("Hi, I need help with the Reel life app.");
     final url = Uri.parse("https://wa.me/$phoneNumber?text=$message");
 
     if (await canLaunchUrl(url)) {

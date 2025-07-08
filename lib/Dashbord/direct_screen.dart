@@ -1,16 +1,101 @@
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:provider/provider.dart';
+// import '../provider/member_provider.dart';  // Import MemberProvider
+// import '../models/member_model.dart';     // Import Member model
+//
+// class DirectScreen extends StatelessWidget {
+//   const DirectScreen({super.key});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final members = Provider.of<MemberProvider>(context).members;
+//
+//     return SafeArea(
+//       child: Scaffold(
+//         backgroundColor: Colors.black,
+//         appBar: AppBar(
+//           title: Text(
+//             "My Referrals",
+//             style: GoogleFonts.roboto(fontSize: 20, fontWeight: FontWeight.bold),
+//           ),
+//           centerTitle: true,
+//           backgroundColor: Colors.black,
+//         ),
+//         body: members.isEmpty
+//             ? Center(
+//           child: Text(
+//             "No members added",
+//             style: GoogleFonts.roboto(color: Colors.white),
+//           ),
+//         )
+//             : ListView.builder(
+//           itemCount: members.length,
+//           itemBuilder: (context, index) {
+//             final member = members[index];
+//             return Card(
+//               margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+//               color: Colors.grey[850],
+//               child: ListTile(
+//                 contentPadding: const EdgeInsets.all(12),
+//                 title: Text(member.name, style: GoogleFonts.roboto(color: Colors.white)),
+//                 subtitle: Text(
+//                   'Email: ${member.email}\nUser ID: ${member.userId}',
+//                   style: GoogleFonts.roboto(color: Colors.white70),
+//                 ),
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../provider/member_provider.dart';  // Import MemberProvider
-import '../models/member_model.dart';     // Import Member model
+import 'package:shared_preferences/shared_preferences.dart';
+import '../service/api_methods.dart';  // make sure this path is correct
 
-class DirectScreen extends StatelessWidget {
+class DirectScreen extends StatefulWidget {
   const DirectScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final members = Provider.of<MemberProvider>(context).members;
+  State<DirectScreen> createState() => _DirectScreenState();
+}
 
+class _DirectScreenState extends State<DirectScreen> {
+  List<dynamic> _members = [];
+  bool _isLoading = true;
+  String _error = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReferrals();
+  }
+
+  Future<void> _loadReferrals() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id =  await prefs.getString('id');
+    try {
+      final data = await ApiMethods.fetchReferrals(id as String);
+      setState(() {
+        _members = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -22,7 +107,17 @@ class DirectScreen extends StatelessWidget {
           centerTitle: true,
           backgroundColor: Colors.black,
         ),
-        body: members.isEmpty
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error.isNotEmpty
+            ? Center(
+          child: Text(
+            _error,
+            style: const TextStyle(color: Colors.red),
+            textAlign: TextAlign.center,
+          ),
+        )
+            : _members.isEmpty
             ? Center(
           child: Text(
             "No members added",
@@ -30,17 +125,23 @@ class DirectScreen extends StatelessWidget {
           ),
         )
             : ListView.builder(
-          itemCount: members.length,
+          itemCount: _members.length,
           itemBuilder: (context, index) {
-            final member = members[index];
+            final member = _members[index];
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
               color: Colors.grey[850],
               child: ListTile(
                 contentPadding: const EdgeInsets.all(12),
-                title: Text(member.name, style: GoogleFonts.roboto(color: Colors.white)),
+                title: Text(
+                  "Member ID: ${member['memberid']}",
+                  style: GoogleFonts.roboto(color: Colors.white),
+                ),
                 subtitle: Text(
-                  'Email: ${member.email}\nUser ID: ${member.userId}',
+                  'Sponsor: ${member['sponsor']}\n'
+                      'Location: ${member['location']}\n'
+                      'Position: ${member['position']}\n'
+                      'Join Date: ${member['join_date']}',
                   style: GoogleFonts.roboto(color: Colors.white70),
                 ),
               ),
@@ -51,55 +152,3 @@ class DirectScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-//
-// class MyDirectScreen extends StatelessWidget {
-//   const MyDirectScreen({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // Dummy referral data
-//     final List<Map<String, String>> referredUsers = [
-//       {'name': 'User A', 'joinedOn': 'May 1, 2025'},
-//       {'name': 'User B', 'joinedOn': 'May 3, 2025'},
-//       {'name': 'User C', 'joinedOn': 'May 6, 2025'},
-//     ];
-//
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//           "My Referrals",
-//           style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),
-//         ),
-//         centerTitle: true,
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: referredUsers.isEmpty
-//             ? Center(child: Text("No referrals yet."))
-//             : ListView.builder(
-//           itemCount: referredUsers.length,
-//           itemBuilder: (context, index) {
-//             final user = referredUsers[index];
-//             return Card(
-//               margin: const EdgeInsets.symmetric(vertical: 8),
-//               elevation: 3,
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(12),
-//               ),
-//               child: ListTile(
-//                 leading: CircleAvatar(child: Text(user['name']![0])),
-//                 title: Text(user['name']!),
-//                 subtitle: Text('Joined on: ${user['joinedOn']}'),
-//               ),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }

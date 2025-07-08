@@ -38,7 +38,7 @@ class _WalletScreenState extends State<WalletScreen> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title:  Text('Wallet', style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),),
+          title:  Text('Wallet Card', style: GoogleFonts.roboto(fontWeight: FontWeight.bold, fontSize: 20),),
           backgroundColor: Colors.black,
           centerTitle: true,
         ),

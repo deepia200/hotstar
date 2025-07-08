@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotstar/screens/streaming_screen.dart';
-import 'package:provider/provider.dart';
 
-import '../provider/auth_provider.dart';
-import 'auth_Screen.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../bottamnavbar/side_Drawer.dart';
+
+import 'Wallet_sacreen.dart';
+
 
 class SearchScreen extends StatefulWidget {
+  Future<bool> isMemberUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final memberType = prefs.getString('memberType') ?? '';
+    return memberType == '0';
+  }
   const SearchScreen({super.key});
 
   @override
@@ -26,11 +35,11 @@ class _SearchScreenState extends State<SearchScreen> {
   ];
 
   final List<String> recentSearchImages = [
-    'https://popcornreviewss.com/wp-content/uploads/2023/12/The-Freelancer-Volume-2-2023-Action-Thriller-Hindi-Review.jpg',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mpWLhc0wGNeSI0041wUgaMoHPchTmgaDWw&s',
-    'https://m.media-amazon.com/images/M/MV5BMDEwYTc5NWYtN2M1MS00ZmU4LWE3N2EtZTYxODgzYjg0NDA4XkEyXkFqcGc@._V1_.jpg',
-    'https://i.pinimg.com/736x/40/41/93/404193e6b2b03eae8425b05515334829.jpg',
-    'https://resizing.flixster.com/qfYrReTgPVNnjvscPgs5HnXK7HY=/ems.cHJkLWVtcy1hc3NldHMvdHZzZWFzb24vYjRlNzk1OTEtMDM2YS00NDAwLTg1MmEtNGE3NTA3MGVhMzE5LmpwZw==',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mpWLhc0wGNeSI0041wUgaMoHPchTmgaDWw&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mpWLhc0wGNeSI0041wUgaMoHPchTmgaDWw&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mpWLhc0wGNeSI0041wUgaMoHPchTmgaDWw&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mpWLhc0wGNeSI0041wUgaMoHPchTmgaDWw&s',
     'https://example.com/rrr.jpg',
     'https://example.com/bhool_bhulaiyaa_2.jpg',
     'https://example.com/pathaan.jpg',
@@ -51,7 +60,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   final Map<String, List<String>> categoryImageMap = {
     'Action': [
-      'https://m.media-amazon.com/images/M/MV5BYzNmZWRkMGQtZGU5NS00ODY0LTlmZjUtOTFiYmNjZjg4YzE0XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+      'https://i.pinimg.com/236x/8a/ee/df/8aeedf3a7d7edf3c435ad84f004c3cd5.jpg',
       'https://m.media-amazon.com/images/M/MV5BZmNjMzliYjgtNDdkNC00ZWU5LWI1ZDAtNGI2ODNjODUzMTc1XkEyXkFqcGc@._V1_.jpg',
       'https://m.media-amazon.com/images/M/MV5BODIwMzkyNmItZjFmYy00MmEyLTlmM2UtZmQ2ODZlNjdkMWQ1XkEyXkFqcGc@._V1_QL75_UY207_CR4,0,140,207_.jpg',
       'https://i.pinimg.com/736x/f9/03/fa/f903fafdf7da0adb883bee0fa54ff863.jpg',
@@ -128,10 +137,13 @@ class _SearchScreenState extends State<SearchScreen> {
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7qzFXlLBp3DLCcHFob_6z_nXq8Hp0SCttR4IisNGQ1OMl5mG_-sYRCjYIBLupNa4LBNA&usqp=CAU',
     ],
     'Documentary': [
-      'https://m.media-amazon.com/images/M/MV5BYzNmZWRkMGQtZGU5NS00ODY0LTlmZjUtOTFiYmNjZjg4YzE0XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+      'https://i.pinimg.com/236x/8a/ee/df/8aeedf3a7d7edf3c435ad84f004c3cd5.jpg',
       'https://m.media-amazon.com/images/M/MV5BZmNjMzliYjgtNDdkNC00ZWU5LWI1ZDAtNGI2ODNjODUzMTc1XkEyXkFqcGc@._V1_.jpg',
       'https://m.media-amazon.com/images/M/MV5BODIwMzkyNmItZjFmYy00MmEyLTlmM2UtZmQ2ODZlNjdkMWQ1XkEyXkFqcGc@._V1_QL75_UY207_CR4,0,140,207_.jpg',
       'https://i.pinimg.com/736x/f9/03/fa/f903fafdf7da0adb883bee0fa54ff863.jpg',
+      'https://m.media-amazon.com/images/M/MV5BMjJmNGQ3NDgtZGMwOC00MTVhLTg5YjMtZGE1MDAxMGU3ZmRiXkEyXkFqcGc@._V1_.jpg',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7qzFXlLBp3DLCcHFob_6z_nXq8Hp0SCttR4IisNGQ1OMl5mG_-sYRCjYIBLupNa4LBNA&usqp=CAU',
+      'https://m.media-amazon.com/images/M/MV5BYzM1MmNhMGQtNDliNy00ZDIwLTg1MDQtN2NjZjUyNTg2MGMxXkEyXkFqcGc@._V1_QL75_UX190_CR0,13,190,281_.jpg',
       'https://m.media-amazon.com/images/M/MV5BMjJmNGQ3NDgtZGMwOC00MTVhLTg5YjMtZGE1MDAxMGU3ZmRiXkEyXkFqcGc@._V1_.jpg',
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7qzFXlLBp3DLCcHFob_6z_nXq8Hp0SCttR4IisNGQ1OMl5mG_-sYRCjYIBLupNa4LBNA&usqp=CAU',
     ],
@@ -142,12 +154,70 @@ class _SearchScreenState extends State<SearchScreen> {
     return categoryImageMap[selectedCategory] ?? [];
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      drawer: HotstarDrawer(),
+      appBar: AppBar(
+        title:
+        // Important to apply gradient to image
+        //     Image.asset(
+        //   'assets/images/logo.png', // Make sure this is added in pubspec.yaml
+        //   height: 50,
+        //   fit: BoxFit.contain,
+        // ),
+
+          ShaderMask(
+          shaderCallback:
+              (bounds) => LinearGradient(
+            colors: [Colors.blue, Colors.pink],
+            tileMode: TileMode.mirror,
+          ).createShader(bounds),
+          child: Text(
+            'ReelLife',
+            style: GoogleFonts.roboto(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
+
+        actions: [
+          FutureBuilder<bool>(
+            future: widget.isMemberUser(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink();
+              }
+              final isMember = snapshot.data ?? false;
+              if (isMember) {
+                return IconButton(
+                  icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const WalletScreen()),
+                    );
+                  },
+                );
+              } else {
+                return SizedBox.shrink();
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.share, color: Colors.white),
+            onPressed: () {
+              Share.share('Check out this awesome content!');
+            },
+          ),
+        ],
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -198,7 +268,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         size: 28,
                       ), // Larger mic icon
                       onPressed: () {
-                        // Implement voice search functionality
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => VoiceSearchScreen()),
+                        // );// Implement voice search functionality
                       },
                     ),
                   ],
@@ -222,12 +295,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                        );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => StreamingScreen(),
+                        ), // Go to Streaming
+                      );
                     },
-
 
                     child: Container(
                       width: 70,
@@ -274,9 +348,13 @@ class _SearchScreenState extends State<SearchScreen> {
             // Trending Categories
             Text(
               'Trending Categories',
-              style: GoogleFonts.roboto(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w500),
+              style: GoogleFonts.roboto(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-             SizedBox(height: 20),
+            SizedBox(height: 20),
             SizedBox(
               height: 40,
               child: ListView.builder(
@@ -288,7 +366,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: ChoiceChip(
                       label: Text(
                         categories[index],
-                        style:  GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.roboto(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       selected: _selectedCategoryIndex == index,
                       onSelected: (bool selected) {
@@ -320,12 +401,13 @@ class _SearchScreenState extends State<SearchScreen> {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => StreamingScreen()), // Go to Streaming
-                      );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => StreamingScreen(),
+                      ), // Go to Streaming
+                    );
                   },
-
 
                   child: Container(
                     decoration: BoxDecoration(

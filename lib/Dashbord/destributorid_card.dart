@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hotstar/service/api_methods.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../provider/auth_provider.dart';
@@ -39,14 +40,29 @@ class KycIdCardScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircleAvatar(
+                  // const CircleAvatar(
+                  //   radius: 50,
+                  //   backgroundImage: NetworkImage("https://via.placeholder.com/150"),
+                  // ),
+                  CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage("https://via.placeholder.com/150"),
+                    backgroundColor: Colors.grey[800],
+                    backgroundImage: (user.profileImage != null && user.profileImage!.isNotEmpty)
+                        ? NetworkImage(ApiMethods.getImageUrl(user.profileImage))
+                        : null,
+                    child: (user.profileImage == null || user.profileImage!.isEmpty)
+                        ? const Icon(Icons.person, size: 50, color: Colors.white70)
+                        : null,
                   ),
+
                   const SizedBox(height: 16),
                   Text(
-                    user.name ?? 'N/A',
+                    user.fname ?? 'N/A',
                     style: GoogleFonts.roboto(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'ID: ${user.id}',
+                    style: TextStyle(color: Colors.white70, fontSize: 12,fontWeight: FontWeight.bold),
                   ),
                   const Divider(color: Colors.white24),
                   _buildInfoRow("Email", user.email ?? 'N/A'),
@@ -54,7 +70,7 @@ class KycIdCardScreen extends StatelessWidget {
                   _buildInfoRow("Full Address", user.fullAddress ?? 'N/A'),
                   _buildInfoRow("City", user.address?['city'] ?? 'N/A'),
                   _buildInfoRow("State", user.address?['state'] ?? 'N/A'),
-                  _buildInfoRow("Country", user.address?['country'] ?? 'N/A'),
+                  _buildInfoRow("Country", user.country ?? 'N/A',),
                   // if ((user.distributorId ?? '').isNotEmpty)
                   //   _buildInfoRow("Distributor ID", user.distributorId!),
                 ],
@@ -92,13 +108,14 @@ class KycIdCardScreen extends StatelessWidget {
     final text = '''
 🪪 *Distributor ID Card*
 
-Name: ${user.name ?? 'N/A'}
+Name: ${user.fname ?? 'N/A'}
+Id: ${user.id ?? 'N/A'}
 Email: ${user.email ?? 'N/A'}
 Phone: ${user.phone ?? 'N/A'}
 Full Address: ${user.fullAddress ?? 'N/A'}
 City: ${user.address?['city'] ?? 'N/A'}
 State: ${user.address?['state'] ?? 'N/A'}
-Country: ${user.address?['country'] ?? 'N/A'}
+Country: ${user.country ?? 'N/A'}
 
 ''';
     Share.share(text);
