@@ -359,6 +359,202 @@
 //   }
 // }
 
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:provider/provider.dart';
+// import '../provider/auth_provider.dart';
+// import '../service/api_methods.dart';
+//
+// class MyKycScreen extends StatefulWidget {
+//   const MyKycScreen({super.key});
+//
+//   @override
+//   State<MyKycScreen> createState() => _MyKycScreenState();
+// }
+//
+// class _MyKycScreenState extends State<MyKycScreen> {
+//   bool _loading = true;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     _loadUser();
+//   }
+//
+//   Future<void> _loadUser() async {
+//     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+//
+//     if (authProvider.id != null && authProvider.fname == null) {
+//       await authProvider.fetchUserDetailsById(authProvider.id!);
+//     }
+//
+//     setState(() {
+//       _loading = false;
+//     });
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return SafeArea(
+//       child: Scaffold(
+//         backgroundColor: Colors.black,
+//         appBar: AppBar(
+//           backgroundColor: Colors.black,
+//           title: const Text("My KYC"),
+//           centerTitle: true,
+//         ),
+//         body: Consumer<AuthProvider>(
+//           builder: (context, user, _) {
+//             if (user.fname == null) {
+//               return const Center(child: CircularProgressIndicator());
+//             }
+//
+//             return SingleChildScrollView(
+//               padding: const EdgeInsets.all(20),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   _sectionTitle("Personal Information"),
+//                   _buildInfoCard("Name", user.fname ?? ''),
+//                   _buildInfoCard("Email", user.email ?? ''),
+//                   _buildInfoCard("Phone", user.phone ?? ''),
+//                   _buildInfoCard("Aadhaar", user.aadhaar ?? ''),
+//                   _buildInfoCard("PAN", user.pan ?? ''),
+//
+//                   _sectionTitle("Address Information"),
+//                   _buildInfoCard("Address", user.fullAddress ?? ''),
+//                   _buildInfoCard("City", user.address?['city'] ?? ''),
+//                   _buildInfoCard("State", user.address?['state'] ?? 'N/A'),
+//                   _buildInfoCard("Pincode", user.address?['zip'] ?? 'N/A'),
+//                   _buildInfoCard("Country", user.country ?? 'N/A'),
+//
+//                   _sectionTitle("Bank Information"),
+//                   _buildInfoCard("Bank Name", user.bank ?? 'N/A'),
+//                   _buildInfoCard("IFSC", user.ifsc ?? 'N/A'),
+//                   _buildInfoCard("Account No", user.acno ?? 'N/A'),
+//
+//                   _sectionTitle("Uploaded Documents"),
+//                   _buildImageCard("Aadhaar Scan", user.aadhaarImagePath),
+//                   _buildImageCard("PAN Scan", user.otherDocumentImagePath),
+//                   _buildImageCard("Bank Passbook Scan", user.bankScanImagePath),
+//
+//                   const SizedBox(height: 20),
+//                   _buildKycStatus(user.isKycVerified),
+//                 ],
+//               ),
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+//
+//
+//   Widget _sectionTitle(String title) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 10),
+//       child: Text(title, style: GoogleFonts.roboto(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//     );
+//   }
+//
+//   Widget _buildInfoCard(String label, String value) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 10),
+//       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+//       decoration: BoxDecoration(
+//         color: Colors.grey[900],
+//         borderRadius: BorderRadius.circular(10),
+//         border: Border.all(color: Colors.grey[700]!),
+//       ),
+//       child: Row(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text("$label: ", style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.w600)),
+//           Expanded(child: Text(value, style: GoogleFonts.roboto(color: Colors.white))),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildImageCard(String label, String? imagePath) {
+//     if (imagePath == null || imagePath.isEmpty) {
+//       return Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(label, style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.w500)),
+//           const SizedBox(height: 8),
+//           Container(
+//             height: 180,
+//             width: double.infinity,
+//             alignment: Alignment.center,
+//             decoration: BoxDecoration(
+//               color: Colors.grey[900],
+//               borderRadius: BorderRadius.circular(12),
+//               border: Border.all(color: Colors.grey[700]!),
+//             ),
+//             child: Text("No $label uploaded", style: GoogleFonts.roboto(color: Colors.grey)),
+//           ),
+//           const SizedBox(height: 20),
+//         ],
+//       );
+//     }
+//
+//     final fullImageUrl = "${ApiMethods.imgUrl}$imagePath";
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(label, style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.w500)),
+//         const SizedBox(height: 8),
+//         Container(
+//           height: 180,
+//           width: double.infinity,
+//           decoration: BoxDecoration(
+//             color: Colors.grey[900],
+//             borderRadius: BorderRadius.circular(12),
+//             border: Border.all(color: Colors.grey[700]!),
+//           ),
+//           child: ClipRRect(
+//             borderRadius: BorderRadius.circular(12),
+//             child: Image.network(
+//               fullImageUrl,
+//               fit: BoxFit.cover,
+//               errorBuilder: (context, error, stackTrace) => Center(
+//                 child: Text('Failed to load image', style: GoogleFonts.roboto(color: Colors.white)),
+//               ),
+//             ),
+//           ),
+//         ),
+//         const SizedBox(height: 20),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildKycStatus(bool isVerified) {
+//     return Container(
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: isVerified ? Colors.green.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
+//         borderRadius: BorderRadius.circular(12),
+//       ),
+//       child: Row(
+//         children: [
+//           Icon(
+//             isVerified ? Icons.verified : Icons.pending,
+//             color: isVerified ? Colors.green : Colors.orange,
+//           ),
+//           const SizedBox(width: 10),
+//           Text(
+//             isVerified ? 'KYC Verified' : 'KYC Pending',
+//             style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotstar/service/api_methods.dart';

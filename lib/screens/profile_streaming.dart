@@ -286,6 +286,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../Dashbord/Detail_screen.dart';
 import '../bottamnavbar/side_Drawer.dart';
 import '../profile/AboutUs.dart';
 import '../profile/change_mobileNo.dart';
@@ -331,20 +332,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt),
-            title: const Text("Take Photo"),
-            onTap: () => _pickImage(ImageSource.camera),
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library),
-            title: const Text("Choose from Gallery"),
-            onTap: () => _pickImage(ImageSource.gallery),
-          ),
-        ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Take Photo"),
+              onTap: () => _pickImage(ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text("Choose from Gallery"),
+              onTap: () => _pickImage(ImageSource.gallery),
+            ),
+        
+          ],
+        ),
       ),
     );
   }
@@ -404,7 +408,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const WalletScreen()),
+                      MaterialPageRoute(builder: (_) => const MyIncomeScreen()),
                     ),
                   );
                 }
@@ -455,11 +459,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(user.fname ?? 'Loading...', style: GoogleFonts.roboto(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(user.fname ?? '', style: GoogleFonts.roboto(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('ID: ${user.id ?? 'Loading...'}', style: GoogleFonts.roboto(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold)),
+                  Text('ID: ${user.id ?? ''}', style: GoogleFonts.roboto(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(user.email ?? 'Loading...', style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
+                  Text(user.email ?? '', style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -472,10 +476,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildProfileOption(Icons.info_outline, 'About Us', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutUsScreen()))),
                   _buildProfileOption(Icons.phone, 'Contact Us', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactSupportScreen()))),
                   _buildProfileOption(Icons.support_agent, 'Support', () => Navigator.push(context, MaterialPageRoute(builder: (_) => HelpSupportScreen()))),
-                  _buildProfileOption(Icons.logout, 'Sign Out', () {
-                    user.logout();
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthScreen()), (route) => false);
-                  }),
+                  // _buildProfileOption(Icons.logout, 'Sign Out', () {
+                  //   user.logout();
+                  //   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthScreen()), (route) => false);
+                  // }),
+                  if (user.id != null && user.id!.isNotEmpty)
+                    _buildProfileOption(Icons.logout, 'Sign Out', () {
+                      user.logout();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AuthScreen()),
+                            (route) => false,
+                      );
+                    }),
+
                 ],
               ),
             ),

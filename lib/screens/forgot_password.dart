@@ -1,5 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../provider/auth_provider.dart' show AuthProvider;
+import '../service/api_methods.dart';
+import 'auth_Screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -14,16 +23,53 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false;
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement password reset logic here
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset successful')),
-      );
-      Navigator.pop(context);
+      setState(() => _isLoading = true);
+
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getString('id'); // 👈 make sure you saved RLID0000xx earlier
+      print(id);
+      print("Deepika");
+
+      if (id == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('User ID not found in local storage')),
+        );
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final data = {
+        "id": id,
+        "new_password": _newPasswordController.text.trim(),
+        "confirm_password": _confirmPasswordController.text.trim(),
+      };
+
+      try {
+        final response = await ApiMethods.resetPassword(data);
+        final status = response['status'];
+        final message = response['message'];
+
+        if (status == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AuthScreen()));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message ?? 'Password reset failed')));
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
   }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +88,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     Text(
+                    Text(
                       'Create New Password',
                       style: GoogleFonts.roboto(
                         color: Colors.white,

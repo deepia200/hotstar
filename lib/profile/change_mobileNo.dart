@@ -137,7 +137,8 @@ class UpdateMobileNumberScreen extends StatefulWidget {
 
 class _UpdateMobileNumberScreenState extends State<UpdateMobileNumberScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _currentPhoneController = TextEditingController();
+  final TextEditingController _newPhoneController = TextEditingController();
   bool isLoading = true;
 
   @override
@@ -148,7 +149,6 @@ class _UpdateMobileNumberScreenState extends State<UpdateMobileNumberScreen> {
 
   Future<void> _loadUserPhone() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('id');
 
@@ -157,32 +157,46 @@ class _UpdateMobileNumberScreenState extends State<UpdateMobileNumberScreen> {
     }
 
     setState(() {
-      _mobileController.text = authProvider.phone ?? '';
+      _currentPhoneController.text = authProvider.phone ?? '';
       isLoading = false;
     });
   }
 
   String? _validateMobileNumber(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your mobile number';
+      return 'Please enter mobile number';
     } else if (value.length != 10) {
       return 'Mobile number should be 10 digits';
     }
     return null;
   }
 
-  void _updateMobileNumber() {
+  void _updateMobileNumber() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final newMobileNumber = _mobileController.text;
+      final currentPhone = _currentPhoneController.text.trim();
+      final newPhone = _newPhoneController.text.trim();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-      // final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      // authProvider.updatePhone(newMobileNumber); // make sure this method exists
+      setState(() {
+        isLoading = true;
+      });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Mobile number updated to $newMobileNumber')),
-      );
+      final error = await authProvider.updatePhoneNumber(newPhone);
 
-      Navigator.pop(context);
+      setState(() {
+        isLoading = false;
+      });
+
+      if (error == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mobile number updated successfully')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
     }
   }
 
@@ -222,16 +236,28 @@ class _UpdateMobileNumberScreenState extends State<UpdateMobileNumberScreen> {
                 child: Form(
                   key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text("Current Phone Number", style:  GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
                       TextFormField(
-                        controller: _mobileController,
-                        style: const TextStyle(color: Colors.white),
+                        controller: _currentPhoneController,
+                        enabled: false,
+                        style:  GoogleFonts.roboto(color: Colors.white),
+                        decoration: _inputDecoration('Current Phone'),
+                      ),
+                      const SizedBox(height: 24),
+                     Text("New Phone Number", style:  GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _newPhoneController,
+                        style:  GoogleFonts.roboto(color: Colors.white),
                         keyboardType: TextInputType.phone,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(10),
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration: _inputDecoration('Mobile Number'),
+                        decoration: _inputDecoration('Enter New Phone Number'),
                         validator: _validateMobileNumber,
                       ),
                     ],

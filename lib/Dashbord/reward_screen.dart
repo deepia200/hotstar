@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../service/api_methods.dart';
 
-class MyRewardScreen extends StatelessWidget {
+class MyRewardScreen extends StatefulWidget {
   const MyRewardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy reward data for the OTT app (you can replace this with real data from an API or provider)
-    final List<String> rewards = [
-      "Free 1-month subscription on your next renewal",
-      "Watch 5 movies, get 1 free rental",
-      "Exclusive early access to new content releases",
-      "50% off on your next premium subscription"
-    ];
+  State<MyRewardScreen> createState() => _MyRewardScreenState();
+}
 
+class _MyRewardScreenState extends State<MyRewardScreen> {
+  late Future<List<Map<String, dynamic>>> _rewardsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _rewardsFuture = ApiMethods.fetchAllRewards();
+  }
+
+  String formatDate(String timestamp) {
+    if (timestamp.isEmpty || timestamp == "0") return "N/A";
+    final date = DateTime.fromMillisecondsSinceEpoch(int.parse(timestamp) * 1000);
+    return DateFormat('dd MMM yyyy').format(date);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -26,20 +39,34 @@ class MyRewardScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: rewards.isEmpty
-            ? _noRewardsView() // Show if no rewards
-            : ListView.builder(
-          itemCount: rewards.length,
-          itemBuilder: (context, index) {
-            return _buildRewardCard(rewards[index]);
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _rewardsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator(color: Colors.white));
+            } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+              return _noRewardsView();
+            } else {
+              final rewards = snapshot.data!;
+              return ListView.builder(
+                itemCount: rewards.length,
+                itemBuilder: (context, index) {
+                  final reward = rewards[index];
+                  final title = reward['reward_title'] ?? 'Untitled';
+                  final startDate = formatDate(reward['start_date'] ?? '');
+                  final endDate = formatDate(reward['end_date'] ?? '');
+
+                  return _buildRewardCard(title, startDate, endDate);
+                },
+              );
+            }
           },
         ),
       ),
     );
   }
 
-  // Build individual reward card
-  Widget _buildRewardCard(String reward) {
+  Widget _buildRewardCard(String reward, String startDate, String endDate) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
@@ -50,22 +77,42 @@ class MyRewardScreen extends StatelessWidget {
         elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.card_giftcard,
-                color: Colors.blueAccent,
-                size: 30,
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  reward,
-                  style: GoogleFonts.roboto(
-                    color: Colors.white,
-                    fontSize: 16,
+              Row(
+                children: [
+                  Icon(
+                    Icons.card_giftcard,
+                    color: Colors.blueAccent,
+                    size: 30,
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      reward,
+                      style: GoogleFonts.roboto(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.date_range, color: Colors.orange, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    "From $startDate → $endDate",
+                    style: GoogleFonts.roboto(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -74,7 +121,6 @@ class MyRewardScreen extends StatelessWidget {
     );
   }
 
-  // If no rewards are available, show this message
   Widget _noRewardsView() {
     return Center(
       child: Text(

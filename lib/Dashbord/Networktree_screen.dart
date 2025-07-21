@@ -179,6 +179,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hotstar/service/api_methods.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -201,12 +202,9 @@ class _NetworkTreeState extends State<NetworkTree> {
 
   Future<void> fetchTree() async {
     final prefs = await SharedPreferences.getInstance();
-    final id =  await prefs.getString('id');
-    print("deepika");
-    print(id);
+    final id = await prefs.getString('id');
     try {
-      final response = await ApiMethods.fetchNetworkTree(id as String); // Replace with actual user ID
-      print(response);
+      final response = await ApiMethods.fetchNetworkTree(id!);
       setState(() {
         treeData = response['data'];
         _loading = false;
@@ -220,14 +218,22 @@ class _NetworkTreeState extends State<NetworkTree> {
   Widget buildTree(Map<String, dynamic> node) {
     final String name = node['name'];
     final String memberId = node['memberid'];
+    final String active = node['active'] ?? 'no';
     final List<dynamic> downlines = node['downlines'];
 
+    final bool isActive = active == 'yes';
+    final Color textColor = isActive ? Colors.green : Colors.red;
+
     if (downlines.isEmpty) {
-      return LeafNode(title: "👤 $name ($memberId)");
+      return LeafNode(
+        title: "👤 $name ($memberId)",
+        textColor: textColor,
+      );
     }
 
     return TreeNode(
       title: "👤 $name ($memberId)",
+      textColor: textColor,
       children: downlines.map<Widget>((child) => buildTree(child)).toList(),
     );
   }
@@ -237,7 +243,7 @@ class _NetworkTreeState extends State<NetworkTree> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("My Network Tree"),
+        title:  Text("My Network Tree", style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
@@ -245,7 +251,8 @@ class _NetworkTreeState extends State<NetworkTree> {
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : treeData == null
           ? const Center(
-        child: Text("No data found", style: TextStyle(color: Colors.white)),
+        child: Text("No data found",
+            style: TextStyle(color: Colors.white)),
       )
           : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -254,11 +261,18 @@ class _NetworkTreeState extends State<NetworkTree> {
     );
   }
 }
+
 class TreeNode extends StatefulWidget {
   final String title;
   final List<Widget> children;
+  final Color textColor;
 
-  const TreeNode({super.key, required this.title, required this.children});
+  const TreeNode({
+    super.key,
+    required this.title,
+    required this.children,
+    required this.textColor,
+  });
 
   @override
   State<TreeNode> createState() => _TreeNodeState();
@@ -281,14 +295,17 @@ class _TreeNodeState extends State<TreeNode> {
               children: [
                 Icon(
                   _expanded ? Icons.arrow_drop_down : Icons.arrow_right,
-                  color: Colors.blue,
+                  color: widget.textColor,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     widget.title,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: widget.textColor,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -322,8 +339,13 @@ class _TreeNodeState extends State<TreeNode> {
 
 class LeafNode extends StatelessWidget {
   final String title;
+  final Color textColor;
 
-  const LeafNode({super.key, required this.title});
+  const LeafNode({
+    super.key,
+    required this.title,
+    required this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -332,7 +354,7 @@ class LeafNode extends StatelessWidget {
       child: Text(
         title,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: textColor),
       ),
     );
   }

@@ -183,10 +183,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../bottamnavbar/bottamNav_Bar.dart';
 import '../provider/auth_provider.dart';
 import '../service/api_methods.dart';
 import 'Dashboard_screen.dart';
+import 'home_Screen.dart';
 
 class DocumentUploadScreen extends StatefulWidget {
   const DocumentUploadScreen({super.key});
@@ -233,29 +235,33 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Take Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(type, ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(type, ImageSource.gallery);
-              },
-            ),
-          ],
+      builder: (_) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(type, ImageSource.gallery);
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
+
     );
   }
 
@@ -293,8 +299,8 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
 
   // Submit documents to API
   Future<void> _submitDocuments(BuildContext context) async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final userId = authProvider.id;
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString('id');
 
     if (_aadhaarImage == null || _panCardImage == null || _bankPassbookImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -306,7 +312,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     setState(() => isUploading = true);
 
     final success = await ApiMethods.uploadKycDocuments(
-      userId: userId ?? '',
+      id: id ?? '',
       aadhaarFile: _aadhaarImage!,
       panFile: _panCardImage!,
       bankFile: _bankPassbookImage!,
@@ -317,7 +323,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     if (success) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Documents submitted successfully")),

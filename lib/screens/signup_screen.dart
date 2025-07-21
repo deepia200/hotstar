@@ -728,7 +728,7 @@ class _SignupPageState extends State<SignupPage> {
 
     if (response != null && response['status'] == 'success') {
       final data = response['data'];
-      final id = data['id'];
+      // final id = data['id'];
       final name = data['name'];
       // final mtype = data['member_type'];
 
@@ -746,7 +746,9 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               Text("Name: $name", style: TextStyle(color: Colors.white)),
               Text("Email: $email", style: TextStyle(color: Colors.white70)),
-              Text("Your ID: $id", style: TextStyle(color: Colors.blueAccent)),
+              // Text("Phone: $phone", style: TextStyle(color: Colors.white70)),
+
+              // Text("Your ID: $id", style: TextStyle(color: Colors.blueAccent)),
               // Text("Signed up as: ${member_type == '0' ? 'Member' : 'Guest'}",
               //     style: TextStyle(color: Colors.white70)),
             ],
@@ -755,10 +757,16 @@ class _SignupPageState extends State<SignupPage> {
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (_) => AuthScreen(username: id, password: pass),
+                //   ),
+                // );
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => AuthScreen(username: id, password: pass),
+                    builder: (_) => AuthScreen(),
                   ),
                 );
               },

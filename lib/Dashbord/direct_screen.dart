@@ -124,30 +124,32 @@ class _DirectScreenState extends State<DirectScreen> {
             style: GoogleFonts.roboto(color: Colors.white),
           ),
         )
-            : ListView.builder(
+            :ListView.builder(
           itemCount: _members.length,
           itemBuilder: (context, index) {
             final member = _members[index];
+            final isActive = member['active'] == 'yes';
+
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              color: Colors.grey[850],
+              color: isActive ? Colors.green[700] : Colors.red[700],
               child: ListTile(
                 contentPadding: const EdgeInsets.all(12),
                 title: Text(
-                  "Member ID: ${member['memberid']}",
-                  style: GoogleFonts.roboto(color: Colors.white),
+                  "ID: ${member['memberid']}",
+                  style: GoogleFonts.roboto(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  'Sponsor: ${member['sponsor']}\n'
-                      'Location: ${member['location']}\n'
-                      'Position: ${member['position']}\n'
+                  'Name: ${member['name']}\n'
+                      'Phone: ${member['phone_number']}\n'
                       'Join Date: ${member['join_date']}',
-                  style: GoogleFonts.roboto(color: Colors.white70),
+                  style: GoogleFonts.roboto(color: Colors.white70, fontWeight: FontWeight.bold),
                 ),
               ),
             );
           },
         ),
+
       ),
     );
   }

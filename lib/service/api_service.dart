@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:pdf/widgets.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user_model.dart';
+import '../provider/auth_provider.dart';
 
 class ApiService {
   static const baseUrl = 'https://stag.aanandi.in/reel_life_otts/public/api/ott';
@@ -164,17 +168,73 @@ class ApiService {
     return await http.get(Uri.parse("$baseUrl/contents"));
   }
 
-  static Future<http.Response> fetchContentById(int contentId) async {
-    return await http.get(Uri.parse("$baseUrl/contents/$contentId"));
+  // static Future<http.Response> fetchContent(BuildContext context) async {
+  //   try {
+  //     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  //     final userId = authProvider.id.toString();
+  //
+  //     final url = Uri.parse("$baseUrl/contents/$userId");
+  //     print("Fetch all content URL: $url");
+  //
+  //     return await http.get(url);
+  //   } catch (e) {
+  //     print("Exception in fetchContent: $e");
+  //     throw e;
+  //   }
+  // }
+
+
+  // static Future<http.Response> fetchContentById(int contentId, String userId) async {
+  //   final url = Uri.parse("$baseUrl/contents/$contentId/$userId");
+  //   print("deepika");
+  //   print(url);
+  //   return await http.get(url);
+  //
+  // }
+
+  static Future<http.Response> fetchContentById(int contentId, BuildContext context) async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userId = authProvider.id.toString();
+      print("Deep : $userId");
+
+
+      final url = Uri.parse("$baseUrl/contents/$contentId/$userId");
+      print("Fetch content URL: $url");
+
+      return await http.get(url);
+    } catch (e) {
+      print("Exception in fetchContentById: $e");
+      throw e;
+    }
   }
 
-  static Future<http.Response> fetchContentDetails(String contentId) async {
+
+
+  // static Future<http.Response> fetchContentDetails(int contentId, String userId) async {
+  //   try {
+  //     final url = Uri.parse('$baseUrl/contents/$contentId/$userId');
+  //     final response = await http.get(url);
+  //     return response;
+  //   } catch (e) {
+  //     print("Exception in fetchContentDetails: $e");
+  //     throw e;
+  //   }
+  // }
+  static Future<http.Response> fetchContentDetails(String contentId, BuildContext context) async {
     try {
-      final response = await http.get(Uri.parse("$baseUrl/contents/$contentId"));
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final userId = authProvider.id.toString();
+      print("yuv : $userId");
+
+      final url = Uri.parse("$baseUrl/contents/$contentId/$userId");
+      print("API URL: $url");
+
+      final response = await http.get(url);
       return response;
     } catch (e) {
       print("Exception in fetchContentDetails: $e");
-      throw e; // Rethrow to handle in the calling function
+      throw e;
     }
   }
 
@@ -182,6 +242,7 @@ class ApiService {
   static Future<Map<String, dynamic>?> getHomeData() async {
     try {
       final response = await http.get(Uri.parse("$baseUrl/home"));
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         return jsonData;
@@ -233,6 +294,35 @@ class ApiService {
       return [];
     }
   }
+  static Future<Map<String, dynamic>> payNow({
+    required String userId,
+    required int movieId,
+    required int amount, // not String!
+  }) async {
+    final url = Uri.parse('$baseUrl/pay-now');
+
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'id': userId,
+        'movie_id': movieId,
+        'amount': amount, // Send as int
+      }),
+    );
+    print("pk");
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {
+        'status': 'error',
+        'message': 'Failed to create payment order',
+      };
+    }
+  }
+
 
 }
 

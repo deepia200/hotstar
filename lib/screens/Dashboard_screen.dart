@@ -13,6 +13,7 @@ import '../Dashbord/direct_screen.dart' hide MyIncomeScreen;
 import '../Dashbord/memberRagistration_screen.dart';
 import '../Dashbord/myNetwork_screen.dart';
 import '../Dashbord/reward_screen.dart';
+import '../Drawer/nomineedetails_screen.dart';
 import '../bottamnavbar/side_Drawer.dart';
 import '../provider/dasshbord_provider.dart';
 import 'Wallet_sacreen.dart';
@@ -50,7 +51,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _DashboardItem(title: 'My Network', icon: Icons.people, destination: const MyNetworkScreen(), count: dashboard.networkCount),
       // _DashboardItem(title: 'My Reward', icon: Icons.card_giftcard, destination: const MyRewardScreen(), count: dashboard.rewardCount),
       _DashboardItem(title: 'My Award', icon: Icons.emoji_events, destination: const MyAwardScreen(), ),
-      _DashboardItem(title: 'My Detail Income', icon: Icons.attach_money, destination: const MyIncomeScreen()),
+      // _DashboardItem(title: 'Nominee Details', icon: Icons.assignment_ind, destination: NomineeDetailsScreen(nomineeData: data), ),
+      _DashboardItem(title: 'My Daily Income', icon: Icons.attach_money, destination: const MyIncomeScreen()),
       _DashboardItem(title: 'New Member Registration', icon: Icons.app_registration, destination: const NewMemberRegistrationScreen()),
       _DashboardItem(title: 'Distributor ID Card', icon: Icons.badge, destination: const KycIdCardScreen()),
     ];
@@ -81,36 +83,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
         ),
-        actions: [
-          FutureBuilder<bool>(
-            future: widget.isMemberUser(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return SizedBox.shrink();
-              }
-              final isMember = snapshot.data ?? false;
-              if (isMember) {
-                return IconButton(
-                  icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const WalletScreen()),
-                    );
-                  },
-                );
-              } else {
-                return SizedBox.shrink();
-              }
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.share, color: Colors.white),
-            onPressed: () {
-              Share.share('Check out this awesome content!');
-            },
-          ),
-        ],
+        // actions: [
+        //   FutureBuilder<bool>(
+        //     future: widget.isMemberUser(),
+        //     builder: (context, snapshot) {
+        //       if (snapshot.connectionState == ConnectionState.waiting) {
+        //         return SizedBox.shrink();
+        //       }
+        //       final isMember = snapshot.data ?? false;
+        //       if (isMember) {
+        //         return IconButton(
+        //           icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+        //           onPressed: () {
+        //             Navigator.push(
+        //               context,
+        //               MaterialPageRoute(builder: (context) => const MyIncomeScreen()),
+        //             );
+        //           },
+        //         );
+        //       } else {
+        //         return SizedBox.shrink();
+        //       }
+        //     },
+        //   ),
+        //   IconButton(
+        //     icon: Icon(Icons.share, color: Colors.white),
+        //     onPressed: () {
+        //       Share.share('Check out this awesome content!');
+        //     },
+        //   ),
+        // ],
         centerTitle: true,
       ),
       body: Padding(

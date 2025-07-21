@@ -1379,6 +1379,746 @@
 //     );
 //   }
 // }
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:hotstar/screens/streaming_screen.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:provider/provider.dart';
+// import 'package:share_plus/share_plus.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
+// import '../provider/episode_provider.dart';
+// import '../service/api_service.dart';
+// import 'Wallet_sacreen.dart';
+// import 'castmovie_screen.dart';
+//
+// class EpisodeDetailsScreen extends StatefulWidget {
+//   Future<bool> isMemberUser() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final memberType = prefs.getString('memberType') ?? '';
+//     return memberType == '0';
+//   }
+//
+//   final String title;
+//   final int contentId;
+//
+//   const EpisodeDetailsScreen({
+//     Key? key,
+//     required this.title,
+//     required this.contentId,
+//   }) : super(key: key);
+//
+//   @override
+//   State<EpisodeDetailsScreen> createState() => _EpisodeDetailsScreenState();
+// }
+//
+// class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
+//   static const String _imageBaseUrl = 'https://stag.aanandi.in/reel_life_otts/storage/app/public/';
+//   List<dynamic> contentList = [];
+//   Map<String, dynamic>? contentDetails;
+//   bool isLoading = true;
+//   bool isLoadingMoreContent = true;
+//   String errorMessage = '';
+//   String errorMoreContent = '';
+//   bool showAllCast = false;
+//   bool showFullDescription = false;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchContentDetails();
+//     fetchMoreContent();
+//   }
+//
+//   Future<void> fetchContentDetails() async {
+//     try {
+//       final response = await ApiService.fetchContentDetails(widget.contentId.toString(), context);
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         setState(() {
+//           contentDetails = data['data'];
+//           if (contentDetails != null && contentDetails!['thumbnail'] != null) {
+//             contentDetails!['thumbnail'] = '$_imageBaseUrl${contentDetails!['thumbnail']}';
+//           }
+//           isLoading = false;
+//         });
+//       } else {
+//         setState(() {
+//           isLoading = false;
+//           errorMessage = 'Failed to load content details: ${response.statusCode}';
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         isLoading = false;
+//         errorMessage = 'Error fetching content details: $e';
+//       });
+//     }
+//   }
+//
+//   Future<void> fetchMoreContent() async {
+//     try {
+//       final response = await http.get(
+//         Uri.parse('https://stag.aanandi.in/reel_life_otts/public/api/ott/content/popular'),
+//       );
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         if (data['status'] == 'success') {
+//           setState(() {
+//             contentList = (data['most_popular_content'] ?? [])
+//                 .where((item) => item['id'] != widget.contentId)
+//                 .toList();
+//             isLoadingMoreContent = false;
+//           });
+//         } else {
+//           setState(() {
+//             errorMoreContent = 'Failed to load more content';
+//             isLoadingMoreContent = false;
+//           });
+//         }
+//       } else {
+//         setState(() {
+//           errorMoreContent = 'Error: ${response.statusCode}';
+//           isLoadingMoreContent = false;
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         errorMoreContent = 'Error fetching more content: $e';
+//         isLoadingMoreContent = false;
+//       });
+//     }
+//   }
+//
+//   Widget buildRatingSection() {
+//     return Row(
+//       children: [
+//         Text(
+//           contentDetails?['genre_name'] ?? 'Movie',
+//           style: const TextStyle(color: Colors.blue, fontSize: 14),
+//         ),
+//         const SizedBox(width: 6),
+//         const Text("|", style: TextStyle(color: Colors.blue, fontSize: 14)),
+//         const SizedBox(width: 6),
+//         Text(
+//           contentDetails?['release_year']?.toString() ?? 'N/A',
+//           style: const TextStyle(color: Colors.blue, fontSize: 14),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   Widget buildCastGrid(Map<String, dynamic> content) {
+//     List<String>? castNames = (content['cast_names'] as String?)?.split(',');
+//     List<String>? castRoles = (content['role_names'] as String?)?.split(',');
+//     List<String>? castImages = (content['cast_profile_photos'] as String?)?.split(',');
+//
+//     if (castNames == null || castNames.isEmpty) return const SizedBox();
+//
+//     final itemCount = showAllCast ? castNames.length : (castNames.length > 4 ? 4 : castNames.length);
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const Text('Cast', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         const SizedBox(height: 12),
+//         SizedBox(
+//           height: 140,
+//           child: ListView.builder(
+//             scrollDirection: Axis.horizontal,
+//             itemCount: itemCount,
+//             itemBuilder: (context, index) {
+//               final name = castNames[index];
+//               final role = castRoles != null && index < castRoles.length ? castRoles[index] : '';
+//               final imageUrl = castImages != null && index < castImages.length && castImages[index].isNotEmpty
+//                   ? '$_imageBaseUrl${castImages[index]}'
+//                   : '';
+//
+//               return GestureDetector(
+//                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CastMoviesScreen(actorName: name))),
+//                 child: Container(
+//                   width: 100,
+//                   margin: const EdgeInsets.only(right: 16),
+//                   child: Column(
+//                     children: [
+//                       CircleAvatar(
+//                         radius: 40,
+//                         backgroundColor: Colors.grey[800],
+//                         backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+//                         child: imageUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white70) : null,
+//                       ),
+//                       const SizedBox(height: 8),
+//                       Text(role, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+//                       Text(name, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+//                     ],
+//                   ),
+//                 ),
+//               );
+//             },
+//           ),
+//         ),
+//         if (castNames.length > 4)
+//           TextButton(
+//             onPressed: () => setState(() => showAllCast = !showAllCast),
+//             child: Text(showAllCast ? 'Show Less' : 'Show More', style: const TextStyle(color: Colors.blue)),
+//           ),
+//       ],
+//     );
+//   }
+//
+//   Widget buildDescription() {
+//     final description = contentDetails?['description'] ?? 'No description available';
+//     final isLongDescription = description.length > 200 || description.split('\n').length > 4;
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const SizedBox(height: 20),
+//         const Text('Description', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         const SizedBox(height: 10),
+//         Text(
+//           description,
+//           style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14, height: 1.5),
+//           maxLines: showFullDescription ? null : 4,
+//           overflow: showFullDescription ? null : TextOverflow.ellipsis,
+//         ),
+//         if (isLongDescription)
+//           TextButton(
+//             onPressed: () => setState(() => showFullDescription = !showFullDescription),
+//             child: Text(showFullDescription ? 'See Less' : 'See More', style: const TextStyle(color: Colors.blue)),
+//           ),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildContentCard(Map<String, dynamic> content) {
+//     return GestureDetector(
+//       onTap: () => Navigator.push(context, MaterialPageRoute(
+//         builder: (_) => StreamingScreen(contentId: content['id'] ?? 0, title: content['movie_name']),
+//       )),
+//       child: SizedBox(
+//         width: 140,
+//         child: Card(
+//           color: Colors.grey[900],
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Expanded(
+//                 child: Container(
+//                   decoration: BoxDecoration(
+//                     image: DecorationImage(
+//                       image: NetworkImage(content['thumbnail']?.startsWith('http')
+//                           ? content['thumbnail']
+//                           : '$_imageBaseUrl${content['thumbnail'] ?? 'placeholder.jpg'}'),
+//                       fit: BoxFit.cover,
+//                     ),
+//                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+//                   ),
+//                 ),
+//               ),
+//               Padding(
+//                 padding: const EdgeInsets.all(8),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(content['movie_name'] ?? 'No Title', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+//                     Text('${content['genre_name'] ?? 'Genre'} • ${content['duration'] ?? '0'} min', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Widget _buildMoreContentSection() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const Padding(
+//           padding: EdgeInsets.symmetric(vertical: 8.0),
+//           child: Text('More Content', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         ),
+//         SizedBox(
+//           height: 240,
+//           child: isLoadingMoreContent
+//               ? const Center(child: CircularProgressIndicator())
+//               : errorMoreContent.isNotEmpty
+//               ? Center(child: Text(errorMoreContent, style: const TextStyle(color: Colors.white)))
+//               : contentList.isEmpty
+//               ? const Center(child: Text('No more content available', style: TextStyle(color: Colors.white)))
+//               : ListView.builder(
+//             scrollDirection: Axis.horizontal,
+//             itemCount: contentList.length,
+//             itemBuilder: (context, index) => Padding(
+//               padding: const EdgeInsets.only(right: 12.0),
+//               child: _buildContentCard(contentList[index]),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.black,
+//       appBar: AppBar(
+//         title: ShaderMask(
+//           shaderCallback: (bounds) => const LinearGradient(colors: [Colors.blue, Colors.pink]).createShader(bounds),
+//           child: Text('ReelLife', style: GoogleFonts.roboto(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+//         ),
+//         actions: [
+//           FutureBuilder<bool>(
+//             future: widget.isMemberUser(),
+//             builder: (context, snapshot) {
+//               if (snapshot.connectionState != ConnectionState.done || !(snapshot.data ?? false)) return const SizedBox.shrink();
+//               return IconButton(
+//                 icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+//                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())),
+//               );
+//             },
+//           ),
+//           IconButton(
+//             icon: const Icon(Icons.share, color: Colors.white),
+//             onPressed: () => Share.share('Check out this awesome content!'),
+//           ),
+//         ],
+//         centerTitle: true,
+//         backgroundColor: Colors.black,
+//         elevation: 0,
+//       ),
+//       body: isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : errorMessage.isNotEmpty
+//           ? Center(child: Text(errorMessage, style: const TextStyle(color: Colors.white)))
+//           : SafeArea(
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: MediaQuery.of(context).size.height / 4,
+//                 child: WebViewWidget(
+//                   controller: WebViewController()
+//                     ..setJavaScriptMode(JavaScriptMode.unrestricted)
+//                     ..loadRequest(Uri.parse(contentDetails?['trailer_url'] ?? 'https://example.com')),
+//                 ),
+//               ),
+//               const SizedBox(height: 10),
+//               Padding(
+//                 padding: const EdgeInsets.all(16.0),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(contentDetails?['movie_name'] ?? widget.title, style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+//                     const SizedBox(height: 6),
+//                     buildRatingSection(),
+//                     if (contentDetails?['cast_names'] != null) buildCastGrid(contentDetails!),
+//                     buildDescription(),
+//                     const SizedBox(height: 10),
+//                     if (!isLoadingMoreContent && errorMoreContent.isEmpty && contentList.isNotEmpty)
+//                       _buildMoreContentSection(),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+// import 'dart:convert';
+// import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
+// import 'package:hotstar/screens/streaming_screen.dart';
+// import 'package:http/http.dart' as http;
+// import 'package:provider/provider.dart';
+// import 'package:share_plus/share_plus.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:webview_flutter/webview_flutter.dart';
+// import '../provider/episode_provider.dart';
+// import '../service/api_service.dart';
+// import 'Wallet_sacreen.dart';
+// import 'castmovie_screen.dart';
+//
+// class EpisodeDetailsScreen extends StatefulWidget {
+//   final String title;
+//   final int contentId;
+//   final int? orderId;
+//
+//   const EpisodeDetailsScreen({
+//     Key? key,
+//     required this.title,
+//     required this.contentId,
+//     this.orderId,
+//   }) : super(key: key);
+//
+//   Future<bool> isMemberUser() async {
+//     final prefs = await SharedPreferences.getInstance();
+//     final memberType = prefs.getString('memberType') ?? '';
+//     return memberType == '0';
+//   }
+//
+//   @override
+//   State<EpisodeDetailsScreen> createState() => _EpisodeDetailsScreenState();
+// }
+//
+// class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
+//   static const String _imageBaseUrl = 'https://stag.aanandi.in/reel_life_otts/storage/app/public/';
+//   List<dynamic> contentList = [];
+//   Map<String, dynamic>? contentDetails;
+//   bool isLoading = true;
+//   bool isLoadingMoreContent = true;
+//   String errorMessage = '';
+//   String errorMoreContent = '';
+//   bool showAllCast = false;
+//   bool showFullDescription = false;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     fetchContentDetails();
+//     fetchMoreContent();
+//   }
+//
+//   Future<void> fetchContentDetails() async {
+//     try {
+//       final response = await ApiService.fetchContentDetails(widget.contentId.toString(), context);
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         setState(() {
+//           contentDetails = data['data'];
+//           if (contentDetails != null && contentDetails!['thumbnail'] != null) {
+//             contentDetails!['thumbnail'] = '$_imageBaseUrl${contentDetails!['thumbnail']}';
+//           }
+//           isLoading = false;
+//         });
+//       } else {
+//         setState(() {
+//           isLoading = false;
+//           errorMessage = 'Failed to load content details: ${response.statusCode}';
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         isLoading = false;
+//         errorMessage = 'Error fetching content details: $e';
+//       });
+//     }
+//   }
+//
+//   Future<void> fetchMoreContent() async {
+//     try {
+//       final response = await http.get(
+//         Uri.parse('https://stag.aanandi.in/reel_life_otts/public/api/ott/content/popular'),
+//       );
+//       if (response.statusCode == 200) {
+//         final data = jsonDecode(response.body);
+//         if (data['status'] == 'success') {
+//           setState(() {
+//             contentList = (data['most_popular_content'] ?? [])
+//                 .where((item) => item['id'] != widget.contentId)
+//                 .toList();
+//             isLoadingMoreContent = false;
+//           });
+//         } else {
+//           setState(() {
+//             errorMoreContent = 'Failed to load more content';
+//             isLoadingMoreContent = false;
+//           });
+//         }
+//       } else {
+//         setState(() {
+//           errorMoreContent = 'Error: ${response.statusCode}';
+//           isLoadingMoreContent = false;
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         errorMoreContent = 'Error fetching more content: $e';
+//         isLoadingMoreContent = false;
+//       });
+//     }
+//   }
+//
+//   Widget buildRatingSection() {
+//     return Row(
+//       children: [
+//         Text(
+//           contentDetails?['genre_name'] ?? 'Movie',
+//           style: const TextStyle(color: Colors.blue, fontSize: 14),
+//         ),
+//         const SizedBox(width: 6),
+//         const Text("|", style: TextStyle(color: Colors.blue, fontSize: 14)),
+//         const SizedBox(width: 6),
+//         Text(
+//           contentDetails?['release_year']?.toString() ?? 'N/A',
+//           style: const TextStyle(color: Colors.blue, fontSize: 14),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   Widget buildCastGrid(Map<String, dynamic> content) {
+//     List<String>? castNames = (content['cast_names'] as String?)?.split(',');
+//     List<String>? castRoles = (content['role_names'] as String?)?.split(',');
+//     List<String>? castImages = (content['cast_profile_photos'] as String?)?.split(',');
+//
+//     if (castNames == null || castNames.isEmpty) return const SizedBox();
+//
+//     final itemCount = showAllCast ? castNames.length : (castNames.length > 4 ? 4 : castNames.length);
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const Text('Cast', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         const SizedBox(height: 12),
+//         SizedBox(
+//           height: 140,
+//           child: ListView.builder(
+//             scrollDirection: Axis.horizontal,
+//             itemCount: itemCount,
+//             itemBuilder: (context, index) {
+//               final name = castNames[index];
+//               final role = castRoles != null && index < castRoles.length ? castRoles[index] : '';
+//               final imageUrl = castImages != null && index < castImages.length && castImages[index].isNotEmpty
+//                   ? '$_imageBaseUrl${castImages[index]}'
+//                   : '';
+//
+//               return GestureDetector(
+//                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CastMoviesScreen(actorName: name))),
+//                 child: Container(
+//                   width: 100,
+//                   margin: const EdgeInsets.only(right: 16),
+//                   child: Column(
+//                     children: [
+//                       CircleAvatar(
+//                         radius: 40,
+//                         backgroundColor: Colors.grey[800],
+//                         backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+//                         child: imageUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white70) : null,
+//                       ),
+//                       const SizedBox(height: 8),
+//                       Text(role, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+//                       Text(name, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+//                     ],
+//                   ),
+//                 ),
+//               );
+//             },
+//           ),
+//         ),
+//         if (castNames.length > 4)
+//           TextButton(
+//             onPressed: () => setState(() => showAllCast = !showAllCast),
+//             child: Text(showAllCast ? 'Show Less' : 'Show More', style: const TextStyle(color: Colors.blue)),
+//           ),
+//       ],
+//     );
+//   }
+//
+//   Widget buildDescription() {
+//     final description = contentDetails?['description'] ?? 'No description available';
+//     final isLongDescription = description.length > 200 || description.split('\n').length > 4;
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const SizedBox(height: 20),
+//         const Text('Description', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         const SizedBox(height: 10),
+//         Text(
+//           description,
+//           style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14, height: 1.5),
+//           maxLines: showFullDescription ? null : 4,
+//           overflow: showFullDescription ? null : TextOverflow.ellipsis,
+//         ),
+//         if (isLongDescription)
+//           TextButton(
+//             onPressed: () => setState(() => showFullDescription = !showFullDescription),
+//             child: Text(showFullDescription ? 'See Less' : 'See More', style: const TextStyle(color: Colors.blue)),
+//           ),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildOrderInfo() {
+//     if (widget.orderId != null) {
+//       return Padding(
+//         padding: const EdgeInsets.only(top: 8.0),
+//         child: Text(
+//           'Purchased (Order ID: ${widget.orderId})',
+//           style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold),
+//         ),
+//       );
+//     }
+//     return const SizedBox.shrink();
+//   }
+//
+//   Widget _buildMoreContentSection() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         const Padding(
+//           padding: EdgeInsets.symmetric(vertical: 8.0),
+//           child: Text('More Content', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+//         ),
+//         SizedBox(
+//           height: 240,
+//           child: isLoadingMoreContent
+//               ? const Center(child: CircularProgressIndicator())
+//               : errorMoreContent.isNotEmpty
+//               ? Center(child: Text(errorMoreContent, style: const TextStyle(color: Colors.white)))
+//               : contentList.isEmpty
+//               ? const Center(child: Text('No more content available', style: TextStyle(color: Colors.white)))
+//               : ListView.builder(
+//             scrollDirection: Axis.horizontal,
+//             itemCount: contentList.length,
+//             itemBuilder: (context, index) => Padding(
+//               padding: const EdgeInsets.only(right: 12.0),
+//               child: _buildContentCard(contentList[index]),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+//
+//   Widget _buildContentCard(Map<String, dynamic> content) {
+//     return GestureDetector(
+//       onTap: () {
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => StreamingScreen(
+//               contentId: content['id'] ?? 0,
+//               title: content['movie_name'],
+//             ),
+//           ),
+//         );
+//       },
+//       child: SizedBox(
+//         width: 140,
+//         child: Card(
+//           color: Colors.grey[900],
+//           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Expanded(
+//                 child: Container(
+//                   decoration: BoxDecoration(
+//                     image: DecorationImage(
+//                       image: NetworkImage(content['thumbnail'] ?? '$_imageBaseUrl/placeholder.jpg'),
+//                       fit: BoxFit.cover,
+//                     ),
+//                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+//                   ),
+//                 ),
+//               ),
+//               Padding(
+//                 padding: const EdgeInsets.all(8.0),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(content['movie_name'] ?? 'No Title',
+//                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+//                         maxLines: 1,
+//                         overflow: TextOverflow.ellipsis),
+//                     Text(
+//                       '${content['genre_name'] ?? 'Genre'} • ${content['duration'] ?? '0'} min',
+//                       style: const TextStyle(color: Colors.white70, fontSize: 12),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.black,
+//       appBar: AppBar(
+//         title: ShaderMask(
+//           shaderCallback: (bounds) => const LinearGradient(colors: [Colors.blue, Colors.pink]).createShader(bounds),
+//           child: Text('ReelLife', style: GoogleFonts.roboto(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white)),
+//         ),
+//         actions: [
+//           FutureBuilder<bool>(
+//             future: widget.isMemberUser(),
+//             builder: (context, snapshot) {
+//               if (snapshot.connectionState != ConnectionState.done || !(snapshot.data ?? false)) return const SizedBox.shrink();
+//               return IconButton(
+//                 icon: const Icon(Icons.account_balance_wallet, color: Colors.white),
+//                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletScreen())),
+//               );
+//             },
+//           ),
+//           IconButton(
+//             icon: const Icon(Icons.share, color: Colors.white),
+//             onPressed: () => Share.share('Check out this awesome content!'),
+//           ),
+//         ],
+//         centerTitle: true,
+//         backgroundColor: Colors.black,
+//         elevation: 0,
+//       ),
+//       body: isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : errorMessage.isNotEmpty
+//           ? Center(child: Text(errorMessage, style: const TextStyle(color: Colors.white)))
+//           : SafeArea(
+//         child: SingleChildScrollView(
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               SizedBox(
+//                 width: double.infinity,
+//                 height: MediaQuery.of(context).size.height / 4,
+//                 child: WebViewWidget(
+//                   controller: WebViewController()
+//                     ..setJavaScriptMode(JavaScriptMode.unrestricted)
+//                     ..loadRequest(Uri.parse(contentDetails?['full_video_url'] ?? contentDetails?['trailer_url'] ?? 'https://example.com')),
+//                 ),
+//               ),
+//               const SizedBox(height: 10),
+//               Padding(
+//                 padding: const EdgeInsets.all(16.0),
+//                 child: Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Text(contentDetails?['movie_name'] ?? widget.title, style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+//                     const SizedBox(height: 6),
+//                     buildRatingSection(),
+//                     _buildOrderInfo(),
+//                     if (contentDetails?['cast_names'] != null) buildCastGrid(contentDetails!),
+//                     buildDescription(),
+//                     const SizedBox(height: 10),
+//                     if (!isLoadingMoreContent && errorMoreContent.isEmpty && contentList.isNotEmpty)
+//                       _buildMoreContentSection(),
+//                   ],
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -1388,18 +2128,13 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../provider/episode_provider.dart';
+import '../provider/auth_provider.dart';
 import '../service/api_service.dart';
 import 'Wallet_sacreen.dart';
+import 'auth_Screen.dart';
 import 'castmovie_screen.dart';
 
 class EpisodeDetailsScreen extends StatefulWidget {
-  Future<bool> isMemberUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final memberType = prefs.getString('memberType') ?? '';
-    return memberType == '0';
-  }
-
   final String title;
   final int contentId;
 
@@ -1409,6 +2144,12 @@ class EpisodeDetailsScreen extends StatefulWidget {
     required this.contentId,
   }) : super(key: key);
 
+  Future<bool> isMemberUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final memberType = prefs.getString('memberType') ?? '';
+    return memberType == '0';
+  }
+
   @override
   State<EpisodeDetailsScreen> createState() => _EpisodeDetailsScreenState();
 }
@@ -1417,6 +2158,7 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
   static const String _imageBaseUrl = 'https://stag.aanandi.in/reel_life_otts/storage/app/public/';
   List<dynamic> contentList = [];
   Map<String, dynamic>? contentDetails;
+  Map<String, dynamic>? contentOrder;
   bool isLoading = true;
   bool isLoadingMoreContent = true;
   String errorMessage = '';
@@ -1433,11 +2175,12 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
 
   Future<void> fetchContentDetails() async {
     try {
-      final response = await ApiService.fetchContentDetails(widget.contentId.toString());
+      final response = await ApiService.fetchContentById(widget.contentId, context);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
           contentDetails = data['data'];
+          contentOrder = data['order'];
           if (contentDetails != null && contentDetails!['thumbnail'] != null) {
             contentDetails!['thumbnail'] = '$_imageBaseUrl${contentDetails!['thumbnail']}';
           }
@@ -1490,20 +2233,19 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
       });
     }
   }
-
   Widget buildRatingSection() {
     return Row(
       children: [
         Text(
           contentDetails?['genre_name'] ?? 'Movie',
-          style: const TextStyle(color: Colors.blue, fontSize: 14),
+          style: const TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(width: 6),
-        const Text("|", style: TextStyle(color: Colors.blue, fontSize: 14)),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
+        const Text("•", style: TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold)),
+        const SizedBox(width: 4),
         Text(
           contentDetails?['release_year']?.toString() ?? 'N/A',
-          style: const TextStyle(color: Colors.blue, fontSize: 14),
+          style: const TextStyle(color: Colors.blue, fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -1549,8 +2291,14 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
                         child: imageUrl.isEmpty ? const Icon(Icons.person, size: 40, color: Colors.white70) : null,
                       ),
                       const SizedBox(height: 8),
-                      Text(role, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text(name, style: const TextStyle(color: Colors.white70, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(role,
+                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                      Text(name,
+                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -1592,11 +2340,193 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
     );
   }
 
+  // Widget buildOrderDetails() {
+  //   if (contentOrder == null) return const SizedBox.shrink();
+  //
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const SizedBox(height: 20),
+  //       const Text('Order Details', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+  //       const SizedBox(height: 10),
+  //       Text(
+  //         'Order ID: ${contentOrder!['id'] ?? 'N/A'}',
+  //         style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14),
+  //       ),
+  //       Text(
+  //         'Payment Status: ${contentOrder!['payment_status'] ?? 'N/A'}',
+  //         style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14),
+  //       ),
+  //       Text(
+  //         'Ordered On: ${contentOrder!['created_at'] ?? 'N/A'}',
+  //         style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14),
+  //       ),
+  //       Text(
+  //         'Transaction ID: ${contentOrder!['transaction_id'] ?? 'N/A'}',
+  //         style: GoogleFonts.roboto(color: Colors.white70, fontSize: 14),
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget buildPlayButton() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final isPurchased = authProvider.isAuthenticated && contentOrder != null && contentOrder!['payment_status'] == 'completed';
+    final rentAmount = contentDetails?['rent_amount']?.toString() ?? '30';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {
+                if (isPurchased) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => StreamingScreen(
+                        contentId: widget.contentId,
+                        title: contentDetails?['movie_name'] ?? widget.title,
+                      ),
+                    ),
+                  );
+                } else {
+                  _showPaymentBottomSheet(context, rentAmount);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Colors.transparent,
+                elevation: 4,
+              ),
+              child: Ink(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF2196F3), Color(0xFFE91E63)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Container(
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints(minHeight: 40),
+                  child: Text(
+                    isPurchased ? 'Play Now' : 'Watch Now',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            onPressed: () {
+              Share.share('Check out ${contentDetails?['movie_name'] ?? widget.title} on ReelLife!');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPaymentBottomSheet(BuildContext context, String rentAmount) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.grey[900],
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+              top: 20,
+              left: 20,
+              right: 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.lock_open_rounded, size: 40, color: Colors.white),
+                const SizedBox(height: 12),
+                Text('Pay ₹$rentAmount to Continue',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 10),
+                const Text('To continue watching this content, please pay.',
+                    style: TextStyle(color: Colors.white70), textAlign: TextAlign.center),
+                const SizedBox(height: 6),
+                const Text('You can watch this movie for 24 hours.',
+                    style: TextStyle(color: Colors.lightGreenAccent, fontSize: 13), textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white70),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        ),
+                        child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          if (authProvider.isAuthenticated) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => StreamingScreen(
+                                  contentId: widget.contentId,
+                                  title: contentDetails?['movie_name'] ?? widget.title,
+                                ),
+                              ),
+                            );
+                          } else {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const AuthScreen()));
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                        ),
+                        child: Text('Pay ₹$rentAmount', style: GoogleFonts.roboto(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildContentCard(Map<String, dynamic> content) {
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(
-        builder: (_) => StreamingScreen(contentId: content['id'] ?? 0, title: content['movie_name']),
-      )),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => StreamingScreen(
+              contentId: content['id'] ?? 0,
+              title: content['movie_name'],
+            ),
+          ),
+        );
+      },
       child: SizedBox(
         width: 140,
         child: Card(
@@ -1609,9 +2539,7 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(content['thumbnail']?.startsWith('http')
-                          ? content['thumbnail']
-                          : '$_imageBaseUrl${content['thumbnail'] ?? 'placeholder.jpg'}'),
+                      image: NetworkImage(content['thumbnail']),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
@@ -1619,12 +2547,18 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(content['movie_name'] ?? 'No Title', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    Text('${content['genre_name'] ?? 'Genre'} • ${content['duration'] ?? '0'} min', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                    Text(content['movie_name'] ?? 'No Title',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    Text(
+                      '${content['genre_name'] ?? 'Genre'} • ${content['duration'] ?? '0'} min',
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
                   ],
                 ),
               ),
@@ -1686,7 +2620,7 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () => Share.share('Check out this awesome content!'),
+            onPressed: () => Share.share('Check out ${contentDetails?['movie_name'] ?? widget.title} on ReelLife!'),
           ),
         ],
         centerTitle: true,
@@ -1717,9 +2651,13 @@ class _EpisodeDetailsScreenState extends State<EpisodeDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(contentDetails?['movie_name'] ?? widget.title, style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
+                    Text(contentDetails?['movie_name'] ?? widget.title,
+                        style: const TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+                    // const SizedBox(height: 6),
                     buildRatingSection(),
+                    // buildPlayButton(),
+                    // buildOrderDetails(),
+                    const SizedBox(height: 8),
                     if (contentDetails?['cast_names'] != null) buildCastGrid(contentDetails!),
                     buildDescription(),
                     const SizedBox(height: 10),

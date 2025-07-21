@@ -1,12 +1,19 @@
-// notification_model.dart
-class NotificationModel {
-  final String title;
-  final String message;
-  final DateTime timestamp;
+class AboutUsModel {
+  final String appVision;
+  final List<String> features;
+  final String contactEmail;
 
-  NotificationModel({
-    required this.title,
-    required this.message,
-    required this.timestamp,
+  AboutUsModel({
+    required this.appVision,
+    required this.features,
+    required this.contactEmail,
   });
+
+  factory AboutUsModel.fromJson(Map<String, dynamic> json) {
+    return AboutUsModel(
+      appVision: json['app_vision'] ?? '',
+      features: List<String>.from(json['features'] ?? []),
+      contactEmail: json['contact_email'] ?? '',
+    );
+  }
 }

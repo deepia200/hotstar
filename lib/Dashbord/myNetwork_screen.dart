@@ -75,23 +75,27 @@ class _MyNetworkScreenState extends State<MyNetworkScreen> {
           itemCount: _networkMembers.length,
           itemBuilder: (context, index) {
             final member = _networkMembers[index];
+            final isActive = member['active'] == 'yes'; // Check active status
+
             return Card(
-              margin: const EdgeInsets.symmetric(
-                  vertical: 10, horizontal: 20),
-              color: Colors.grey[850],
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              color: isActive ? Colors.green[700] : Colors.red[700], // Active → green, Inactive → red
               child: ListTile(
                 contentPadding: const EdgeInsets.all(12),
                 title: Text(
-                  "Member ID: ${member['memberid'] ?? 'N/A'}",
-                  style: GoogleFonts.roboto(color: Colors.white),
+                  "ID: ${member['memberid'] ?? 'N/A'}",
+                  style: GoogleFonts.roboto(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 subtitle: Text(
-                  'Sponsor: ${member['sponsor'] ?? 'N/A'}\n'
-                      'Location: ${member['location'] ?? 'N/A'}\n'
-                      'Position: ${member['position'] ?? 'N/A'}\n'
+                  'Name: ${member['name']}\n'
+                      'Phone: ${member['phone_number']}\n'
                       'Join Date: ${member['join_date'] ?? 'N/A'}',
                   style: GoogleFonts.roboto(
                     color: Colors.white70,
+                    fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
                 ),
@@ -99,6 +103,7 @@ class _MyNetworkScreenState extends State<MyNetworkScreen> {
             );
           },
         ),
+
       ),
     );
   }

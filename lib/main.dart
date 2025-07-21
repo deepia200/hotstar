@@ -116,7 +116,7 @@ class MyApp extends StatelessWidget {
       initialScreen = HomeScreen();
     } else {
       if (authProvider.memberType == '0') {
-        initialScreen = DashboardScreen();
+        initialScreen = HomeScreen();
       } else {
         initialScreen = HomeScreen();
       }

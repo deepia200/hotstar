@@ -172,9 +172,19 @@ class _MyIncomeScreenState extends State<MyIncomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadIncomeData();
     // final prefs = await SharedPreferences.getInstance();
     // final id =  await prefs.getString('id');
-    _incomeFuture = ApiMethods.fetchIncome('RLID000001');
+    // _incomeFuture = ApiMethods.fetchIncome('RLID000001');
+  }
+
+
+  Future<void> _loadIncomeData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('id') ?? 'RLID000001'; // fallback default
+    setState(() {
+      _incomeFuture = ApiMethods.fetchIncome(userId);
+    });
   }
 
   String formatTimestamp(String timestamp) {

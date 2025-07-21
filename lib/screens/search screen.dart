@@ -5,6 +5,7 @@ import 'package:hotstar/screens/streaming_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Dashbord/Detail_screen.dart';
 import '../bottamnavbar/side_Drawer.dart';
 
 import 'Wallet_sacreen.dart';
@@ -198,7 +199,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const WalletScreen()),
+                      MaterialPageRoute(builder: (context) => const MyIncomeScreen()),
                     );
                   },
                 );

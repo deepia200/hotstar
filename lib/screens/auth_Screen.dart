@@ -208,6 +208,7 @@ import '../bottamnavbar/bottamNav_Bar.dart';
 import '../provider/auth_provider.dart';
 import 'Dashboard_screen.dart';
 import 'KYC_screen.dart';
+import 'emailverification_screen.dart';
 import 'forgot_password.dart';
 import 'home_Screen.dart';
 import 'signup_screen.dart';
@@ -330,11 +331,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => ForgotPasswordScreen(),
+                            builder: (_) => ForgotPasswordRequestScreen(),
                           ),
                         );
                       },
@@ -396,7 +397,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   // ),
 
                                     MaterialPageRoute(
-                                      builder: (_) => DashboardScreen(),
+                                      builder: (_) => HomeScreen(),
 
                                   ),
                                 );
